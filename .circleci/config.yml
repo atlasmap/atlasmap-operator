@@ -1,0 +1,37 @@
+version: 2
+jobs:
+  build:
+    working_directory: /go/src/github.com/atlasmap/atlasmap-operator
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          version: 17.11.0-ce
+
+      - restore_cache:
+          key: gopkg-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
+          paths:
+              - /go/src/github.com/atlasmap/atlasmap-operator/vendor
+
+      - run:
+          name: install-operator-sdk
+          command: make install-operator-sdk
+
+      - run:
+          name: build-operator
+          command: make build
+
+      - save_cache:
+          key: gopkg-{{ .Branch }}-{{ checksum "Gopkg.lock" }}
+          paths:
+              - /go/src/github.com/atlasmap/atlasmap-operator/vendor
+
+      - deploy:
+          command: |
+            if [ "${CIRCLE_PROJECT_USERNAME}" != "atlasmap" ]; then
+              exit 0
+            fi
+            docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+            docker push atlasmap/atlasmap-operator | cat -

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlasmap-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: atlasmap-operator
+  template:
+    metadata:
+      labels:
+        name: atlasmap-operator
+    spec:
+      serviceAccountName: atlasmap-operator
+      containers:
+        - name: atlasmap-operator
+          image: docker.io/atlasmap/atlasmap-operator
+          ports:
+          - containerPort: 8383
+            name: metrics
+          command:
+          - atlasmap-operator
+          imagePullPolicy: Always
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "atlasmap-operator"

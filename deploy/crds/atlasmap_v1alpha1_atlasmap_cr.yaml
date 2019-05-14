@@ -1,0 +1,10 @@
+apiVersion: atlasmap.io/v1alpha1
+kind: AtlasMap
+metadata:
+  name: example-atlasmap
+spec:
+  # The number of desired replicas
+  replicas: 1
+  # The number of desired replicas
+  image: docker.io/atlasmap/atlasmap:latest
+
