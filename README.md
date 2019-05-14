@@ -1,5 +1,8 @@
 # AtlasMap Operator
 
+[![CircleCI](https://img.shields.io/circleci/project/github/atlasmap/atlasmap-operator/master.svg)](https://circleci.com/gh/atlasmap/atlasmap-operator)
+[![license](https://img.shields.io/github/license/atlasmap/atlasmap-operator.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+
 A Kubernetes operator based on the [Operator SDK](https://github.com/operator-framework/operator-sdk) which can manage [AtlasMap](https://www.atlasmap.io/) on a cluster.
 
 ## Custom Resource
