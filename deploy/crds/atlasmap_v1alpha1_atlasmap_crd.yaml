@@ -12,6 +12,10 @@ spec:
   scope: Namespaced
   subresources:
     status: {}
+    scale:
+      specReplicasPath: .spec.replicas
+      statusReplicasPath: .status.replicas
+      labelSelectorPath: .status.labelSelector
   validation:
     openAPIV3Schema:
       properties:

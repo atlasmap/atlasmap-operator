@@ -2,7 +2,6 @@ package atlasmap
 
 import (
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
-	atlasmapv1alpha1 "github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 )
@@ -11,7 +10,7 @@ func configureResources(cr *v1alpha1.AtlasMap, container *corev1.Container) erro
 	limits := make(corev1.ResourceList)
 	requests := make(corev1.ResourceList)
 
-	if cr.Spec.LimitCPU != "" {
+	if len(cr.Spec.LimitCPU) > 0 {
 		cpuLimit, err := resource.ParseQuantity(cr.Spec.LimitCPU)
 		if err != nil {
 			return err
@@ -20,7 +19,7 @@ func configureResources(cr *v1alpha1.AtlasMap, container *corev1.Container) erro
 		limits[corev1.ResourceCPU] = cpuLimit
 	}
 
-	if cr.Spec.LimitMemory != "" {
+	if len(cr.Spec.LimitMemory) > 0 {
 		memoryLimit, err := resource.ParseQuantity(cr.Spec.LimitMemory)
 		if err != nil {
 			return err
@@ -29,7 +28,7 @@ func configureResources(cr *v1alpha1.AtlasMap, container *corev1.Container) erro
 		limits[corev1.ResourceMemory] = memoryLimit
 	}
 
-	if cr.Spec.RequestCPU != "" {
+	if len(cr.Spec.RequestCPU) > 0 {
 		cpuRequest, err := resource.ParseQuantity(cr.Spec.RequestCPU)
 		if err != nil {
 			return err
@@ -38,7 +37,7 @@ func configureResources(cr *v1alpha1.AtlasMap, container *corev1.Container) erro
 		requests[corev1.ResourceCPU] = cpuRequest
 	}
 
-	if cr.Spec.RequestMemory != "" {
+	if len(cr.Spec.RequestMemory) > 0 {
 		memoryRequest, err := resource.ParseQuantity(cr.Spec.RequestMemory)
 		if err != nil {
 			return err
@@ -52,7 +51,7 @@ func configureResources(cr *v1alpha1.AtlasMap, container *corev1.Container) erro
 	return nil
 }
 
-func resourceListChanged(cr *atlasmapv1alpha1.AtlasMap, resources corev1.ResourceRequirements) (bool, error) {
+func resourceListChanged(cr *v1alpha1.AtlasMap, resources corev1.ResourceRequirements) (bool, error) {
 	limitsUpdates, err := resourceListQuantityChanged(resources.Limits, cr.Spec.LimitCPU, cr.Spec.LimitMemory)
 	if err != nil {
 		return false, err
@@ -77,7 +76,7 @@ func resourceListQuantityChanged(resourceList corev1.ResourceList, cpu string, m
 		newResourceValue, _ := resource.ParseQuantity("0")
 
 		if resourceType == corev1.ResourceCPU {
-			if cpu != "" {
+			if len(cpu) > 0 {
 				quantity, err := resource.ParseQuantity(cpu)
 				if err != nil {
 					return false, err
@@ -87,7 +86,7 @@ func resourceListQuantityChanged(resourceList corev1.ResourceList, cpu string, m
 		}
 
 		if resourceType == corev1.ResourceMemory {
-			if memory != "" {
+			if len(memory) > 0 {
 				quantity, err := resource.ParseQuantity(memory)
 				if err != nil {
 					return false, err
