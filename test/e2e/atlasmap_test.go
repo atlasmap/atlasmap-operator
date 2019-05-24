@@ -83,18 +83,15 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 
 	defer f.Client.Delete(goctx.TODO(), exampleAtlasMap)
 
-	err = f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval})
-	if err != nil {
+	if err := f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
 		return err
 	}
 
-	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout)
-	if err != nil {
+	if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout); err != nil {
 		return err
 	}
 
-	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, exampleAtlasMap)
-	if err != nil {
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, exampleAtlasMap); err != nil {
 		return err
 	}
 
@@ -104,15 +101,13 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 
 	// Verify a service was created
 	atlasMapService := &v1.Service{}
-	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapService)
-	if err != nil {
+	if err := f.Client.Get(context.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapService); err != nil {
 		return err
 	}
 
 	// Verify a route was created
 	atlasMapRoute := &routev1.Route{}
-	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapRoute)
-	if err != nil {
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapRoute); err != nil {
 		return err
 	}
 
@@ -148,29 +143,53 @@ func atlasMapScaleTest(t *testing.T, f *framework.Framework, ctx *framework.Test
 
 	defer f.Client.Delete(goctx.TODO(), exampleAtlasMap)
 
-	err = f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval})
-	if err != nil {
+	if err := f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
 		return err
 	}
 
-	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout)
-	if err != nil {
+	if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout); err != nil {
 		return err
 	}
 
-	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, exampleAtlasMap)
-	if err != nil {
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, exampleAtlasMap); err != nil {
 		return err
 	}
 
 	exampleAtlasMap.Spec.Replicas = 3
-	err = f.Client.Update(goctx.TODO(), exampleAtlasMap)
-	if err != nil {
+	if err := f.Client.Update(goctx.TODO(), exampleAtlasMap); err != nil {
 		return err
 	}
 
 	// wait for deployment to reach 3 replicas
-	return e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 3, retryInterval, timeout)
+	if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 3, retryInterval, timeout); err != nil {
+		return err
+	}
+
+	deployment := &appsv1.Deployment{}
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Namespace: f.Namespace, Name: crName}, deployment); err != nil {
+		return err
+	}
+
+	replicas := int32(1)
+	deployment.Spec.Replicas = &replicas
+	if err := f.Client.Update(goctx.TODO(), deployment); err != nil {
+		return err
+	}
+
+	if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout); err != nil {
+		return err
+	}
+
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Namespace: f.Namespace, Name: crName}, exampleAtlasMap); err != nil {
+		return err
+	}
+
+	// Verify update of deployment replicas syncs back to AtlasMap replicas
+	if replicas != exampleAtlasMap.Spec.Replicas {
+		return fmt.Errorf("Expected AtlasMap replicas to be %d but got %d", replicas, exampleAtlasMap.Spec.Replicas)
+	}
+
+	return nil
 }
 
 func atlasMapImageNameTest(t *testing.T, f *framework.Framework, ctx *framework.TestCtx) error {
@@ -199,24 +218,20 @@ func atlasMapImageNameTest(t *testing.T, f *framework.Framework, ctx *framework.
 
 	defer f.Client.Delete(goctx.TODO(), exampleAtlasMap)
 
-	err = f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval})
-	if err != nil {
+	if err := f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
 		return err
 	}
 
-	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout)
-	if err != nil {
+	if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout); err != nil {
 		return err
 	}
 
-	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, exampleAtlasMap)
-	if err != nil {
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, exampleAtlasMap); err != nil {
 		return err
 	}
 
 	deployment := &appsv1.Deployment{}
-	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, deployment)
-	if err != nil {
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, deployment); err != nil {
 		return err
 	}
 
@@ -261,24 +276,20 @@ func atlasMapResourcesTest(t *testing.T, f *framework.Framework, ctx *framework.
 
 	defer f.Client.Delete(goctx.TODO(), exampleAtlasMap)
 
-	err = f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval})
-	if err != nil {
+	if err := f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
 		return err
 	}
 
-	err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout*2)
-	if err != nil {
+	if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, crName, 1, retryInterval, timeout*2); err != nil {
 		return err
 	}
 
-	err = f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, exampleAtlasMap)
-	if err != nil {
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, exampleAtlasMap); err != nil {
 		return err
 	}
 
 	deployment := &appsv1.Deployment{}
-	err = f.Client.Get(context.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, deployment)
-	if err != nil {
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, deployment); err != nil {
 		return err
 	}
 
@@ -308,8 +319,7 @@ func AtlasMapCluster(t *testing.T) {
 	ctx := framework.NewTestCtx(t)
 	defer ctx.Cleanup()
 
-	err := ctx.InitializeClusterResources(&framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval})
-	if err != nil {
+	if err := ctx.InitializeClusterResources(&framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
 		t.Fatalf("failed to initialize cluster resources: %v", err)
 	}
 
@@ -324,8 +334,7 @@ func AtlasMapCluster(t *testing.T) {
 	routev1.AddToScheme(framework.Global.Scheme)
 
 	if !f.LocalOperator {
-		err = e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "atlasmap-operator", 1, retryInterval, timeout)
-		if err != nil {
+		if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "atlasmap-operator", 1, retryInterval, timeout); err != nil {
 			t.Fatal(err)
 		}
 	}
