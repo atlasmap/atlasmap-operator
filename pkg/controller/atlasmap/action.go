@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
+	"github.com/atlasmap/atlasmap-operator/pkg/config"
 	"github.com/go-logr/logr"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -57,7 +58,7 @@ func atlasMapLabels(atlasMap *v1alpha1.AtlasMap) map[string]string {
 
 func atlasMapImage(atlasMap *v1alpha1.AtlasMap) string {
 	if len(atlasMap.Spec.Image) == 0 {
-		return DefaultImageName
+		return config.DefaultConfiguration.AtlasMapImage
 	}
 	return atlasMap.Spec.Image
 }

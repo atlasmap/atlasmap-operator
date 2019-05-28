@@ -11,8 +11,9 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis"
+	atlasmapconfig "github.com/atlasmap/atlasmap-operator/pkg/config"
 	"github.com/atlasmap/atlasmap-operator/pkg/controller"
-
+	"github.com/atlasmap/atlasmap-operator/pkg/controller/atlasmap"
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	"github.com/operator-framework/operator-sdk/pkg/leader"
@@ -39,6 +40,13 @@ func printVersion() {
 	log.Info(fmt.Sprintf("Version of operator-sdk: %v", sdkVersion.Version))
 }
 
+func init() {
+	flagset := flag.CommandLine
+	flagset.StringVar(&atlasmapconfig.DefaultConfiguration.AtlasMapImage, "atlasmap-image", atlasmap.DefaultImageName, "AtlasMap container image")
+	flagset.Parse(os.Args[1:])
+
+}
+
 func main() {
 	// Add the zap logger flag set to the CLI. The flag set must
 	// be added before calling pflag.Parse().
@@ -59,7 +67,6 @@ func main() {
 	// be propagated through the whole operator, generating
 	// uniform and structured logs.
 	logf.SetLogger(zap.Logger())
-
 	printVersion()
 
 	namespace, err := k8sutil.GetWatchNamespace()
