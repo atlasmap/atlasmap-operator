@@ -79,7 +79,7 @@ func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap) *appsv1.Deployment {
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
 						Image:           atlasMapImage(atlasMap),
-						ImagePullPolicy: corev1.PullIfNotPresent,
+						ImagePullPolicy: corev1.PullAlways,
 						Name:            "atlasmap",
 						Ports: []corev1.ContainerPort{
 							{

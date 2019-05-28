@@ -5,6 +5,5 @@ metadata:
 spec:
   # The number of desired replicas
   replicas: 1
-  # The number of desired replicas
+  # The AtlasMap image to use
   image: docker.io/atlasmap/atlasmap:latest
-
