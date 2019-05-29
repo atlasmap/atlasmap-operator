@@ -142,6 +142,7 @@ func (r *ReconcileAtlasMap) Reconcile(request reconcile.Request) (reconcile.Resu
 			if errors.IsConflict(err) {
 				return reconcile.Result{Requeue: true}, nil
 			}
+			reqLogger.Error(err, "Error running action", "action", reflect.TypeOf(a))
 			return reconcile.Result{}, err
 		}
 	}

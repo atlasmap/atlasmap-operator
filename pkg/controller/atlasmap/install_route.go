@@ -33,13 +33,11 @@ func (action *installRouteAction) handle(ctx context.Context, atlasMap *v1alpha1
 	err := action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, service)
 	if err != nil && errors.IsNotFound(err) {
 		service = createAtlasMapService(atlasMap)
-		err := action.deployResource(ctx, atlasMap, service)
-		if err != nil {
-			action.log.Error(err, "Error creating Service.", "Service.Namespace", service.Namespace, "Service.Name", service.Name)
+
+		if err := action.deployResource(ctx, atlasMap, service); err != nil {
 			return err
 		}
 	} else if err != nil {
-		action.log.Error(err, "Error retrieving Service.", "Service.Namespace", atlasMap.Namespace, "Service.Name", atlasMap.Name)
 		return err
 	}
 
@@ -57,11 +55,9 @@ func (action *installRouteAction) handle(ctx context.Context, atlasMap *v1alpha1
 
 			// Route can take a while to create so there's a chance of an 'already exists' error occurring
 			if err != nil && !errors.IsAlreadyExists(err) {
-				action.log.Error(err, "Error creating Route.", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
 				return err
 			}
 		} else if err != nil {
-			action.log.Error(err, "Error retrieving Route.", "Route.Namespace", atlasMap.Namespace, "Route.Name", atlasMap.Name)
 			return err
 		}
 	} else {
@@ -69,10 +65,7 @@ func (action *installRouteAction) handle(ctx context.Context, atlasMap *v1alpha1
 		err = action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, ingress)
 		if err != nil && errors.IsNotFound(err) {
 			ingress = createAtlasMapIngress(atlasMap)
-			err := action.deployResource(ctx, atlasMap, ingress)
-
-			if err != nil {
-				action.log.Error(err, "Error creating Ingress.", "Ingress.Namespace", atlasMap.Namespace, "Ingress.Name", atlasMap.Name)
+			if err := action.deployResource(ctx, atlasMap, ingress); err != nil {
 				return err
 			}
 		} else if err != nil {

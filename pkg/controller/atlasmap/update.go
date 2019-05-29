@@ -43,16 +43,12 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 			if errors.IsNotFound(err) {
 				return nil
 			}
-
-			action.log.Error(err, "Error retrieving route.", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
 			return err
 		}
 
 		if atlasMap.Spec.RouteHostName != route.Spec.Host {
 			route.Spec.Host = atlasMap.Spec.RouteHostName
-			err := action.client.Update(ctx, route)
-			if err != nil {
-				action.log.Error(err, "Error updating Route.", "AtlasMap.Namespace", route.Namespace, "AtlasMap.Name", route.Name)
+			if err := action.client.Update(ctx, route); err != nil {
 				return err
 			}
 		}
@@ -60,9 +56,7 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 		url := "https://" + route.Spec.Host
 		if atlasMap.Status.URL != url {
 			atlasMap.Status.URL = url
-			err := action.client.Status().Update(ctx, atlasMap)
-			if err != nil {
-				action.log.Error(err, "Error updating AtlasMap status URL.", "AtlasMap.Namespace", atlasMap.Namespace, "AtlasMap.Name", atlasMap.Name)
+			if err := action.client.Status().Update(ctx, atlasMap); err != nil {
 				return err
 			}
 		}
@@ -74,8 +68,6 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 			if errors.IsNotFound(err) {
 				return nil
 			}
-
-			action.log.Error(err, "Error retrieving Ingress.", "Ingress.Namespace", ingress.Namespace, "Ingress.Name", ingress.Name)
 			return err
 		}
 
@@ -83,9 +75,7 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 			host := util.IngressHostName(atlasMap)
 			if host != ingress.Spec.Rules[0].Host {
 				ingress.Spec.Rules[0].Host = host
-				err := action.client.Update(ctx, ingress)
-				if err != nil {
-					action.log.Error(err, "Error updating Ingress.", "AtlasMap.Namespace", ingress.Namespace, "AtlasMap.Name", ingress.Name)
+				if err := action.client.Update(ctx, ingress); err != nil {
 					return err
 				}
 			}
@@ -93,9 +83,7 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 			url := "http://" + ingress.Spec.Rules[0].Host
 			if atlasMap.Status.URL != url {
 				atlasMap.Status.URL = url
-				err := action.client.Status().Update(ctx, atlasMap)
-				if err != nil {
-					action.log.Error(err, "Error updating AtlasMap status URL.", "AtlasMap.Namespace", atlasMap.Namespace, "AtlasMap.Name", atlasMap.Name)
+				if err := action.client.Status().Update(ctx, atlasMap); err != nil {
 					return err
 				}
 			}
@@ -115,9 +103,7 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 	if annotations := deployment.GetAnnotations(); annotations != nil && annotations[atlasMapVersionAnnotation] == atlasMap.GetResourceVersion() {
 		if replicas := deployment.Spec.Replicas; atlasMap.Spec.Replicas != *replicas {
 			atlasMap.Spec.Replicas = *replicas
-			err := action.client.Update(ctx, atlasMap)
-			if err != nil {
-				action.log.Error(err, "Error updating AtlasMap Replicas.", "AtlasMap.Namespace", atlasMap.Namespace, "AtlasMap.Name", atlasMap.Name)
+			if err := action.client.Update(ctx, atlasMap); err != nil {
 				return err
 			}
 		}
@@ -125,9 +111,7 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 		if replicas := atlasMap.Spec.Replicas; *deployment.Spec.Replicas != replicas {
 			deployment.Annotations[atlasMapVersionAnnotation] = atlasMap.GetResourceVersion()
 			deployment.Spec.Replicas = &replicas
-			err = action.client.Update(ctx, deployment)
-			if err != nil {
-				action.log.Error(err, "Error updating Deployment Replicas.", "Deployment.Namespace", deployment.Namespace, "Deployment.Name", deployment.Name)
+			if err = action.client.Update(ctx, deployment); err != nil {
 				return err
 			}
 		}
@@ -141,18 +125,14 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 		image := atlasMapImage(atlasMap)
 		if container.Image != image {
 			container.Image = image
-			err := action.client.Update(ctx, deployment)
-			if err != nil {
-				action.log.Error(err, "Error updating Deployment container image.", "Deployment.Namespace", deployment.Namespace, "Deployment.Name", deployment.Name)
+			if err := action.client.Update(ctx, deployment); err != nil {
 				return err
 			}
 		}
 
 		if atlasMap.Status.Image != container.Image {
 			atlasMap.Status.Image = container.Image
-			err := action.client.Status().Update(ctx, atlasMap)
-			if err != nil {
-				action.log.Error(err, "Error updating AtlasMap status image.", "AtlasMap.Namespace", atlasMap.Namespace, "AtlasMap.Name", atlasMap.Name)
+			if err := action.client.Status().Update(ctx, atlasMap); err != nil {
 				return err
 			}
 		}
@@ -166,9 +146,7 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 
 		if updateResources {
 			configureResources(atlasMap, container)
-			err = action.client.Update(ctx, deployment)
-			if err != nil {
-				action.log.Error(err, "Error updating Deployment container image.", "Deployment.Namespace", deployment.Namespace, "Deployment.Name", deployment.Name)
+			if err = action.client.Update(ctx, deployment); err != nil {
 				return err
 			}
 		}
@@ -178,14 +156,12 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 	instance := &v1alpha1.AtlasMap{}
 	err = action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, instance)
 	if err != nil {
-		action.log.Error(err, "Error retrieving AtlasMap.", "AtlasMap.Namespace", atlasMap.Namespace, "AtlasMap.Name", atlasMap.Name)
 		return err
 	}
 
 	if annotations := deployment.GetAnnotations(); annotations != nil && annotations[atlasMapVersionAnnotation] != instance.GetResourceVersion() {
 		deployment.Annotations[atlasMapVersionAnnotation] = instance.GetResourceVersion()
-		err := action.client.Update(ctx, deployment)
-		if err != nil {
+		if err := action.client.Update(ctx, deployment); err != nil {
 			return err
 		}
 	}

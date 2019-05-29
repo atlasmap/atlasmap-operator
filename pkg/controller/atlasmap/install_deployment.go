@@ -36,15 +36,12 @@ func (action *installDeploymentAction) handle(ctx context.Context, atlasMap *v1a
 	err := action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, deployment)
 	if err != nil && errors.IsNotFound(err) {
 		deployment = createAtlasMapDeployment(atlasMap)
-		err := configureResources(atlasMap, &deployment.Spec.Template.Spec.Containers[0])
-		if err != nil {
-			action.log.Error(err, "Error configuring Deployment resources.", "Deployment.Namespace", deployment.Namespace, "Deployment.Name", deployment.Name)
+
+		if err := configureResources(atlasMap, &deployment.Spec.Template.Spec.Containers[0]); err != nil {
 			return err
 		}
 
-		err = action.deployResource(ctx, atlasMap, deployment)
-		if err != nil {
-			action.log.Error(err, "Error creating Deployment.", "Deployment.Namespace", deployment.Namespace, "Deployment.Name", deployment.Name)
+		if err := action.deployResource(ctx, atlasMap, deployment); err != nil {
 			return err
 		}
 	} else if err != nil {
