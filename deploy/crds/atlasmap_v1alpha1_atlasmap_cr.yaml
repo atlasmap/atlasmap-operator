@@ -5,5 +5,23 @@ metadata:
 spec:
   # The number of desired replicas
   replicas: 1
-  # The AtlasMap image to use
-  image: docker.io/atlasmap/atlasmap:latest
+
+  # The AtlasMap image to use. The default is docker.io/atlasmap/atlasmap:latest
+  # The default image can be overridden by providing an argument to the AtlasMap operator deployment spec
+  # E.g: --atlasmap-image=docker.io/custom-namespace/custom-image:latest
+  # image: docker.io/atlasmap/atlasmap:latest
+
+  # The host name to use for the OpenShift route or Kubernetes Ingress. If not specified, this is generated automatically
+  # routeHostName: example-atlasmap.192.168.42.115.nip.io
+
+  # The amount of CPU to request
+  # requestCPU: 200m
+
+  # The amount of memory to request
+  # requestMemory: 256Mi
+
+  # The amount of CPU to limit
+  # limitCPU: 300m
+
+  # The amount of memory to limit
+  # limitMemory: 512Mi

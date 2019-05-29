@@ -3,6 +3,8 @@ package atlasmap
 import (
 	"context"
 
+	"k8s.io/client-go/rest"
+
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/config"
 	"github.com/go-logr/logr"
@@ -27,6 +29,7 @@ type baseAction struct {
 	log    logr.Logger
 	client client.Client
 	scheme *runtime.Scheme
+	config *rest.Config
 }
 
 func newOperatorActions(log logr.Logger, mgr manager.Manager) []action {
@@ -42,6 +45,7 @@ func newBaseAction(log logr.Logger, mgr manager.Manager) baseAction {
 		log,
 		mgr.GetClient(),
 		mgr.GetScheme(),
+		mgr.GetConfig(),
 	}
 }
 

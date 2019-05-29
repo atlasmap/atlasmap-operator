@@ -14,7 +14,6 @@
 package e2e
 
 import (
-	"context"
 	goctx "context"
 	"fmt"
 	"testing"
@@ -22,10 +21,12 @@ import (
 
 	routev1 "github.com/openshift/api/route/v1"
 	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/api/extensions/v1beta1"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis"
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/controller/atlasmap"
+	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
 	v1 "k8s.io/api/core/v1"
@@ -101,17 +102,35 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 
 	// Verify a service was created
 	atlasMapService := &v1.Service{}
-	if err := f.Client.Get(context.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapService); err != nil {
+	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapService); err != nil {
 		return err
 	}
 
-	// Verify a route was created
-	atlasMapRoute := &routev1.Route{}
-	if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapRoute); err != nil {
+	isOpenShift, err := util.IsOpenShift(f.KubeConfig)
+	if err != nil {
 		return err
 	}
 
-	expectedURL := "https://" + atlasMapRoute.Spec.Host
+	var scheme, host string
+	if isOpenShift {
+		// Verify a route was created
+		atlasMapRoute := &routev1.Route{}
+		if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapRoute); err != nil {
+			return err
+		}
+		scheme = "https"
+		host = atlasMapRoute.Spec.Host
+	} else {
+		// Verify ingress was created
+		atlasMapIngress := &v1beta1.Ingress{}
+		if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, atlasMapIngress); err != nil {
+			return err
+		}
+		scheme = "http"
+		host = atlasMapIngress.Spec.Rules[0].Host
+	}
+
+	expectedURL := fmt.Sprintf("%s://%s", scheme, host)
 	if exampleAtlasMap.Status.URL != expectedURL {
 		return fmt.Errorf("Expected AtlasMap.Status.URL to be %s but was %s", expectedURL, exampleAtlasMap.Status.URL)
 	}

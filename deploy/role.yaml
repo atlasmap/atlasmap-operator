@@ -51,3 +51,9 @@ rules:
   - routes
   verbs:
   - '*'
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - '*'

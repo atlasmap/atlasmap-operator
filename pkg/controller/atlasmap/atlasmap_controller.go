@@ -7,7 +7,9 @@ import (
 	routev1 "github.com/openshift/api/route/v1"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
+	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -70,13 +72,29 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		return err
 	}
 
-	// Watch for changes to secondary resource route and requeue the owner AtlasMap
-	err = c.Watch(&source.Kind{Type: &routev1.Route{}}, &handler.EnqueueRequestForOwner{
-		IsController: true,
-		OwnerType:    &v1alpha1.AtlasMap{},
-	})
+	isOpenShift, err := util.IsOpenShift(mgr.GetConfig())
 	if err != nil {
 		return err
+	}
+
+	if isOpenShift {
+		// Watch for changes to secondary resource route and requeue the owner AtlasMap
+		err = c.Watch(&source.Kind{Type: &routev1.Route{}}, &handler.EnqueueRequestForOwner{
+			IsController: true,
+			OwnerType:    &v1alpha1.AtlasMap{},
+		})
+		if err != nil {
+			return err
+		}
+	} else {
+		// Watch for changes to secondary resource ingress and requeue the owner AtlasMap
+		err = c.Watch(&source.Kind{Type: &v1beta1.Ingress{}}, &handler.EnqueueRequestForOwner{
+			IsController: true,
+			OwnerType:    &v1alpha1.AtlasMap{},
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	actions = newOperatorActions(log, mgr)

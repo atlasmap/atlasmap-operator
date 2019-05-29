@@ -17,6 +17,8 @@ spec:
   replicas: 1
   # Override the default AtlasMap image
   image: docker.io/atlasmap/atlasmap
+  # The host name to use for the OpenShift route or Kubernetes Ingress. If not specified, this is generated automatically
+  routeHostName: example-atlasmap.192.168.42.115.nip.io
   # The amount of CPU to request
   requestCPU: 200m
   # The amount of memory to request

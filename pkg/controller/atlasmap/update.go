@@ -4,9 +4,11 @@ import (
 	"context"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
+	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
 	appsv1 "k8s.io/api/apps/v1"
+	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -27,26 +29,76 @@ func newUpdateAction(log logr.Logger, mgr manager.Manager) action {
 }
 
 func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.AtlasMap) error {
-	// Reconcile status URL
-	route := &routev1.Route{}
-	err := action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, route)
+	isOpenShift, err := util.IsOpenShift(action.config)
 	if err != nil {
-		// Route not created yet so wait for next AtlasMap reconcile
-		if errors.IsNotFound(err) {
-			return nil
-		}
-
-		action.log.Error(err, "Error retrieving route.", "Deployment.Namespace", route.Namespace, "Deployment.Name", route.Name)
 		return err
 	}
 
-	url := "https://" + route.Spec.Host
-	if atlasMap.Status.URL != url {
-		atlasMap.Status.URL = url
-		err := action.client.Status().Update(ctx, atlasMap)
+	// Reconcile status URL
+	if isOpenShift {
+		route := &routev1.Route{}
+		err := action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, route)
 		if err != nil {
-			action.log.Error(err, "Error updating AtlasMap status URL.", "AtlasMap.Namespace", atlasMap.Namespace, "AtlasMap.Name", atlasMap.Name)
+			// Route not created yet so wait for next AtlasMap reconcile
+			if errors.IsNotFound(err) {
+				return nil
+			}
+
+			action.log.Error(err, "Error retrieving route.", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
 			return err
+		}
+
+		if atlasMap.Spec.RouteHostName != route.Spec.Host {
+			route.Spec.Host = atlasMap.Spec.RouteHostName
+			err := action.client.Update(ctx, route)
+			if err != nil {
+				action.log.Error(err, "Error updating Route.", "AtlasMap.Namespace", route.Namespace, "AtlasMap.Name", route.Name)
+				return err
+			}
+		}
+
+		url := "https://" + route.Spec.Host
+		if atlasMap.Status.URL != url {
+			atlasMap.Status.URL = url
+			err := action.client.Status().Update(ctx, atlasMap)
+			if err != nil {
+				action.log.Error(err, "Error updating AtlasMap status URL.", "AtlasMap.Namespace", atlasMap.Namespace, "AtlasMap.Name", atlasMap.Name)
+				return err
+			}
+		}
+	} else {
+		ingress := &v1beta1.Ingress{}
+		err = action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, ingress)
+		if err != nil {
+			// Ingress not created yet so wait for next AtlasMap reconcile
+			if errors.IsNotFound(err) {
+				return nil
+			}
+
+			action.log.Error(err, "Error retrieving Ingress.", "Ingress.Namespace", ingress.Namespace, "Ingress.Name", ingress.Name)
+			return err
+		}
+
+		if len(ingress.Spec.Rules) == 1 {
+			host := util.IngressHostName(atlasMap)
+			if host != ingress.Spec.Rules[0].Host {
+				ingress.Spec.Rules[0].Host = host
+				err := action.client.Update(ctx, ingress)
+				if err != nil {
+					action.log.Error(err, "Error updating Ingress.", "AtlasMap.Namespace", ingress.Namespace, "AtlasMap.Name", ingress.Name)
+					return err
+				}
+			}
+
+			url := "http://" + ingress.Spec.Rules[0].Host
+			if atlasMap.Status.URL != url {
+				atlasMap.Status.URL = url
+				err := action.client.Status().Update(ctx, atlasMap)
+				if err != nil {
+					action.log.Error(err, "Error updating AtlasMap status URL.", "AtlasMap.Namespace", atlasMap.Namespace, "AtlasMap.Name", atlasMap.Name)
+					return err
+				}
+			}
 		}
 	}
 
