@@ -19,22 +19,34 @@ spec:
   validation:
     openAPIV3Schema:
       properties:
-        apiVersion:
-          description: 'APIVersion defines the versioned schema of this representation
-            of an object. Servers should convert recognized schemas to the latest
-            internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#resources'
-          type: string
-        kind:
-          description: 'Kind is a string value representing the REST resource this
-            object represents. Servers may infer this from the endpoint the client
-            submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/api-conventions.md#types-kinds'
-          type: string
-        metadata:
-          type: object
         spec:
           type: object
+          properties:
+            replicas:
+              type: integer
+            image:
+              type: string
+            routeHostName:
+              type: string
+            requestCPU:
+              type: string
+              pattern: '[0-9]+m?$'
+            requestMemory:
+              type: string
+              pattern: '[0-9]+([kKmMgGtTpPeE]i?)?$'
+            limitCPU:
+              type: string
+              pattern: '[0-9]+m?$'
+            limitMemory:
+              type: string
+              pattern: '[0-9]+([kKmMgGtTpPeE]i?)?$'
         status:
           type: object
+          properties:
+            URL:
+              type: string
+            image:
+              type: string
   version: v1alpha1
   versions:
   - name: v1alpha1
