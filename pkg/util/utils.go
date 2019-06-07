@@ -1,6 +1,8 @@
 package util
 
 import (
+	"fmt"
+
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/discovery"
@@ -28,7 +30,7 @@ func IsOpenShift(config *rest.Config) (bool, error) {
 func IngressHostName(atlasMap *v1alpha1.AtlasMap) string {
 	hostName := atlasMap.Spec.RouteHostName
 	if len(hostName) == 0 {
-		hostName = atlasMap.Name
+		hostName = fmt.Sprintf("%s-%s", atlasMap.Name, atlasMap.Namespace)
 	}
 	return hostName
 }
