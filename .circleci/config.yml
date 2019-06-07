@@ -71,5 +71,30 @@ jobs:
             if [ "${CIRCLE_PROJECT_USERNAME}" != "atlasmap" ]; then
               exit 0
             fi
+
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+              DOCKER_TAG="latest"
+            elif [[ "${CIRCLE_TAG}" =~ ^[0-9]+(\.[0-9]+){2} ]]; then
+              DOCKER_TAG="${CIRCLE_TAG}"
+            fi
+
+            if [[ -z "${DOCKER_TAG}" ]]; then
+              exit 0
+            fi
+
             docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-            docker push atlasmap/atlasmap-operator | cat -
+            docker tag atlasmap/atlasmap-operator:latest atlasmap/atlasmap-operator:${DOCKER_TAG}
+            docker push atlasmap/atlasmap-operator:${DOCKER_TAG} | cat -
+
+workflows:
+  version: 2
+  atlasmap-operator:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
+            tags:
+              only:
+                - /\d+\.\d+\.\d+/
