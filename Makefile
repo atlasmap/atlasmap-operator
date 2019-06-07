@@ -4,6 +4,8 @@ NAMESPACE ?= atlasmap
 PROJECT = atlasmap-operator
 TAG = latest
 OPERATOR_SDK_VERSION=v0.7.0
+QUAY_NAMESPACE ?= atlasmap
+QUAY_REPOSITORY ?= atlasmap
 
 .PHONY: compile
 compile:
@@ -56,3 +58,11 @@ run:
 .PHONY: install-operator-sdk
 install-operator-sdk:
 	curl -Lo operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_VERSION}/operator-sdk-${OPERATOR_SDK_VERSION}-x86_64-linux-gnu && chmod +x operator-sdk && sudo mv operator-sdk /usr/local/bin/
+
+.PHONY: olm-bundle-push
+olm-bundle-push:
+	build/scripts/bundle-push.sh $(QUAY_NAMESPACE) $(QUAY_REPOSITORY)
+
+.PHONY: olm-operator-source
+olm-operator-source:
+	build/scripts/create-operator-source.sh $(QUAY_NAMESPACE)
