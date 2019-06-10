@@ -8,14 +8,12 @@ NAMESPACE=${1:-atlasmap}
 REPOSITORY=${2:-atlasmap}
 
 MANIFEST_DIR=$(dirname "$0")/../../deploy/olm-catalog/atlasmap-operator
-BUNDLE_ARCHIVE=/tmp/atlasmap.tar.gz
 BUNDLE_DIR=/tmp/atlasmap/
 BUNDLE_VERSION=$(grep currentCSV ${MANIFEST_DIR}/atlasmap.package.yaml | sed 's/[^0-9\.][v.]*//g')
 
 [ -d ] && rm -rf ${BUNDLE_DIR}
-[ -f ] && rm -f ${BUNDLE_ARCHIVE}
-
 mkdir -p ${BUNDLE_DIR}
+
 cp ${MANIFEST_DIR}/atlasmap.package.yaml ${BUNDLE_DIR}
 cp ${MANIFEST_DIR}/${BUNDLE_VERSION}/*.yaml ${BUNDLE_DIR}
 
