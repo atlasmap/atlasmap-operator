@@ -6,6 +6,7 @@ TAG = latest
 OPERATOR_SDK_VERSION=v0.8.1
 QUAY_NAMESPACE ?= atlasmap
 QUAY_REPOSITORY ?= atlasmap
+VERSION = $(shell grep Version version/version.go | cut -d \" -f2)
 
 .PHONY: compile
 compile:
@@ -54,6 +55,12 @@ test:
 .PHONY: run
 run:
 	operator-sdk up local --namespace=${NAMESPACE} --operator-flags=""
+
+.PHONY: scorecard
+scorecard:
+	operator-sdk scorecard \
+		--cr-manifest=deploy/crds/atlasmap_v1alpha1_atlasmap_cr.yaml \
+		--csv-path deploy/olm-catalog/atlasmap-operator/$(VERSION)/atlasmap-operator.v$(VERSION).clusterserviceversion.yaml
 
 .PHONY: install-operator-sdk
 install-operator-sdk:
