@@ -9,7 +9,7 @@ metadata:
     certified: "false"
     containerImage: docker.io/atlasmap/atlasmap-operator
     description: AtlasMap is a data mapping solution with an interactive web based user interface, that simplifies configuring integrations between Java, XML, and JSON data sources
-    createdAt: 2019-05-14:00:55Z
+    createdAt: 2019-06-10T06:42:43Z
     support: AtlasMap
     repository: https://github.com/atlasmap/atlasmap-operator
     alm-examples: |-
