@@ -42,12 +42,7 @@ var (
 )
 
 func TestAtlasMap(t *testing.T) {
-	atlasMapList := &v1alpha1.AtlasMapList{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "AtlasMap",
-			APIVersion: "atlasmap.io/v1alpha1",
-		},
-	}
+	atlasMapList := &v1alpha1.AtlasMapList{}
 
 	err := framework.AddToFrameworkScheme(apis.AddToScheme, atlasMapList)
 	if err != nil {
@@ -69,10 +64,6 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 	crName := "test-atlasmap-deployment"
 
 	exampleAtlasMap := &v1alpha1.AtlasMap{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "AtlasMap",
-			APIVersion: "atlasmap.io/v1alpha1",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      crName,
 			Namespace: namespace,
@@ -147,10 +138,6 @@ func atlasMapScaleTest(t *testing.T, f *framework.Framework, ctx *framework.Test
 	crName := "test-atlasmap-scale"
 
 	exampleAtlasMap := &v1alpha1.AtlasMap{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "AtlasMap",
-			APIVersion: "atlasmap.io/v1alpha1",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      crName,
 			Namespace: namespace,
@@ -221,10 +208,6 @@ func atlasMapImageNameTest(t *testing.T, f *framework.Framework, ctx *framework.
 	imageName := "docker.io/atlasmap/atlasmap:1.40"
 
 	exampleAtlasMap := &v1alpha1.AtlasMap{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "AtlasMap",
-			APIVersion: "atlasmap.io/v1alpha1",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      crName,
 			Namespace: namespace,
@@ -276,10 +259,6 @@ func atlasMapResourcesTest(t *testing.T, f *framework.Framework, ctx *framework.
 	requestMemory := "256Mi"
 
 	exampleAtlasMap := &v1alpha1.AtlasMap{
-		TypeMeta: metav1.TypeMeta{
-			Kind:       "AtlasMap",
-			APIVersion: "atlasmap.io/v1alpha1",
-		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      crName,
 			Namespace: namespace,

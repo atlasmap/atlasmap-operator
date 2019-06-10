@@ -14,7 +14,7 @@ required = [
 [[override]]
   name = "k8s.io/code-generator"
   # revision for tag "kubernetes-1.13.1"
-  revision = "c2090bec4d9b1fb25de3812f868accc2bc9ecbae"
+  revision = "kubernetes-1.13.1"
 
 [[override]]
   name = "k8s.io/kube-openapi"
@@ -24,29 +24,30 @@ required = [
   name = "github.com/go-openapi/spec"
   branch = "master"
 
+# FIXME: This override revision has a fix that allows CRD unit tests to run correctly.
 [[override]]
   name = "sigs.k8s.io/controller-tools"
-  version = "=v0.1.8"
+  revision = "9d55346c2bde73fb3326ac22eac2e5210a730207"
 
 [[override]]
   name = "k8s.io/api"
   # revision for tag "kubernetes-1.13.1"
-  revision = "05914d821849570fba9eacfb29466f2d8d3cd229"
+  revision = "kubernetes-1.13.1"
 
 [[override]]
   name = "k8s.io/apiextensions-apiserver"
   # revision for tag "kubernetes-1.13.1"
-  revision = "0fe22c71c47604641d9aa352c785b7912c200562"
+  revision = "kubernetes-1.13.1"
 
 [[override]]
   name = "k8s.io/apimachinery"
   # revision for tag "kubernetes-1.13.1"
-  revision = "2b1284ed4c93a43499e781493253e2ac5959c4fd"
+  revision = "kubernetes-1.13.1"
 
 [[override]]
   name = "k8s.io/client-go"
   # revision for tag "kubernetes-1.13.1"
-  revision = "8d9ed539ba3134352c586810e749e58df4e94e4f"
+  revision = "kubernetes-1.13.1"
 
 [[override]]
   name = "github.com/coreos/prometheus-operator"
@@ -60,7 +61,7 @@ required = [
   name = "github.com/operator-framework/operator-sdk"
   # The version rule is used for a specific release and the master branch for in between releases.
   # branch = "master" #osdk_branch_annotation
-  version = "=v0.7.0" #osdk_version_annotation
+  version = "=v0.8.1" #osdk_version_annotation
 
 [prune]
   go-tests = true
