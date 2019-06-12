@@ -5,16 +5,16 @@
 ############################################
 
 NAMESPACE=${1:-atlasmap}
-REPOSITORY=${2:-atlasmap}
+REPOSITORY=${2:-atlasmap-operator}
 
 MANIFEST_DIR=$(dirname "$0")/../../deploy/olm-catalog/atlasmap-operator
-BUNDLE_DIR=/tmp/atlasmap/
-BUNDLE_VERSION=$(grep currentCSV ${MANIFEST_DIR}/atlasmap.package.yaml | sed 's/[^0-9\.][v.]*//g')
+BUNDLE_DIR=/tmp/atlasmap-operator/
+BUNDLE_VERSION=$(grep currentCSV ${MANIFEST_DIR}/atlasmap-operator.package.yaml | sed 's/[^0-9\.][v.]*//g')
 
 [ -d ] && rm -rf ${BUNDLE_DIR}
 mkdir -p ${BUNDLE_DIR}
 
-cp ${MANIFEST_DIR}/atlasmap.package.yaml ${BUNDLE_DIR}
+cp ${MANIFEST_DIR}/atlasmap-operator.package.yaml ${BUNDLE_DIR}
 cp ${MANIFEST_DIR}/${BUNDLE_VERSION}/*.yaml ${BUNDLE_DIR}
 
 if [[ -z "${QUAY_API_TOKEN}" ]]; then

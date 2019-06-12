@@ -5,7 +5,7 @@ PROJECT = atlasmap-operator
 TAG = latest
 OPERATOR_SDK_VERSION=v0.8.1
 QUAY_NAMESPACE ?= atlasmap
-QUAY_REPOSITORY ?= atlasmap
+QUAY_REPOSITORY ?= atlasmap-operator
 VERSION = $(shell grep Version version/version.go | cut -d \" -f2)
 
 .PHONY: compile
