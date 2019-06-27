@@ -11,7 +11,6 @@ import (
 	"sync"
 
 	"golang.org/x/tools/internal/jsonrpc2"
-	"golang.org/x/tools/internal/lsp/cache"
 	"golang.org/x/tools/internal/lsp/protocol"
 	"golang.org/x/tools/internal/lsp/source"
 	"golang.org/x/tools/internal/lsp/xlog"
@@ -19,30 +18,32 @@ import (
 )
 
 // NewClientServer
-func NewClientServer(client protocol.Client) *Server {
+func NewClientServer(cache source.Cache, client protocol.Client) *Server {
 	return &Server{
-		client: client,
-		log:    xlog.New(protocol.NewLogger(client)),
+		client:  client,
+		session: cache.NewSession(xlog.New(protocol.NewLogger(client))),
 	}
 }
 
 // NewServer starts an LSP server on the supplied stream, and waits until the
 // stream is closed.
-func NewServer(stream jsonrpc2.Stream) *Server {
+func NewServer(cache source.Cache, stream jsonrpc2.Stream) *Server {
 	s := &Server{}
-	s.Conn, s.client, s.log = protocol.NewServer(stream, s)
+	var log xlog.Logger
+	s.Conn, s.client, log = protocol.NewServer(stream, s)
+	s.session = cache.NewSession(log)
 	return s
 }
 
 // RunServerOnPort starts an LSP server on the given port and does not exit.
 // This function exists for debugging purposes.
-func RunServerOnPort(ctx context.Context, port int, h func(s *Server)) error {
-	return RunServerOnAddress(ctx, fmt.Sprintf(":%v", port), h)
+func RunServerOnPort(ctx context.Context, cache source.Cache, port int, h func(s *Server)) error {
+	return RunServerOnAddress(ctx, cache, fmt.Sprintf(":%v", port), h)
 }
 
 // RunServerOnPort starts an LSP server on the given port and does not exit.
 // This function exists for debugging purposes.
-func RunServerOnAddress(ctx context.Context, addr string, h func(s *Server)) error {
+func RunServerOnAddress(ctx context.Context, cache source.Cache, addr string, h func(s *Server)) error {
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
@@ -52,10 +53,7 @@ func RunServerOnAddress(ctx context.Context, addr string, h func(s *Server)) err
 		if err != nil {
 			return err
 		}
-		stream := jsonrpc2.NewHeaderStream(conn, conn)
-		s := NewServer(stream)
-		h(s)
-		go s.Run(ctx)
+		h(NewServer(cache, jsonrpc2.NewHeaderStream(conn, conn)))
 	}
 }
 
@@ -66,7 +64,6 @@ func (s *Server) Run(ctx context.Context) error {
 type Server struct {
 	Conn   *jsonrpc2.Conn
 	client protocol.Client
-	log    xlog.Logger
 
 	initializedMu sync.Mutex
 	isInitialized bool // set once the server has received "initialize" request
@@ -74,15 +71,16 @@ type Server struct {
 	// Configurations.
 	// TODO(rstambler): Separate these into their own struct?
 	usePlaceholders               bool
-	enhancedHover                 bool
+	noDocsOnHover                 bool
 	insertTextFormat              protocol.InsertTextFormat
 	configurationSupported        bool
 	dynamicConfigurationSupported bool
 	preferredContentFormat        protocol.MarkupKind
+	disabledAnalyses              map[string]struct{}
 
 	textDocumentSyncKind protocol.TextDocumentSyncKind
 
-	views []*cache.View
+	session source.Session
 
 	// undelivered is a cache of any diagnostics that the server
 	// failed to deliver for some reason.
@@ -110,8 +108,8 @@ func (s *Server) Exit(ctx context.Context) error {
 
 // Workspace
 
-func (s *Server) DidChangeWorkspaceFolders(context.Context, *protocol.DidChangeWorkspaceFoldersParams) error {
-	return notImplemented("DidChangeWorkspaceFolders")
+func (s *Server) DidChangeWorkspaceFolders(ctx context.Context, params *protocol.DidChangeWorkspaceFoldersParams) error {
+	return s.changeFolders(ctx, params.Event)
 }
 
 func (s *Server) DidChangeConfiguration(context.Context, *protocol.DidChangeConfigurationParams) error {
@@ -133,7 +131,7 @@ func (s *Server) ExecuteCommand(context.Context, *protocol.ExecuteCommandParams)
 // Text Synchronization
 
 func (s *Server) DidOpen(ctx context.Context, params *protocol.DidOpenTextDocumentParams) error {
-	return s.cacheAndDiagnose(ctx, span.NewURI(params.TextDocument.URI), params.TextDocument.Text)
+	return s.didOpen(ctx, params)
 }
 
 func (s *Server) DidChange(ctx context.Context, params *protocol.DidChangeTextDocumentParams) error {
@@ -186,8 +184,8 @@ func (s *Server) Implementation(context.Context, *protocol.TextDocumentPositionP
 	return nil, notImplemented("Implementation")
 }
 
-func (s *Server) References(context.Context, *protocol.ReferenceParams) ([]protocol.Location, error) {
-	return nil, notImplemented("References")
+func (s *Server) References(ctx context.Context, params *protocol.ReferenceParams) ([]protocol.Location, error) {
+	return s.references(ctx, params)
 }
 
 func (s *Server) DocumentHighlight(ctx context.Context, params *protocol.TextDocumentPositionParams) ([]protocol.DocumentHighlight, error) {
@@ -231,15 +229,15 @@ func (s *Server) Formatting(ctx context.Context, params *protocol.DocumentFormat
 }
 
 func (s *Server) RangeFormatting(ctx context.Context, params *protocol.DocumentRangeFormattingParams) ([]protocol.TextEdit, error) {
-	return s.rangeFormatting(ctx, params)
+	return nil, notImplemented("RangeFormatting")
 }
 
 func (s *Server) OnTypeFormatting(context.Context, *protocol.DocumentOnTypeFormattingParams) ([]protocol.TextEdit, error) {
 	return nil, notImplemented("OnTypeFormatting")
 }
 
-func (s *Server) Rename(context.Context, *protocol.RenameParams) (*protocol.WorkspaceEdit, error) {
-	return nil, notImplemented("Rename")
+func (s *Server) Rename(ctx context.Context, params *protocol.RenameParams) (*protocol.WorkspaceEdit, error) {
+	return s.rename(ctx, params)
 }
 
 func (s *Server) Declaration(context.Context, *protocol.TextDocumentPositionParams) ([]protocol.DeclarationLink, error) {
@@ -260,10 +258,6 @@ func (s *Server) PrepareRename(context.Context, *protocol.TextDocumentPositionPa
 
 func (s *Server) Resolve(context.Context, *protocol.CompletionItem) (*protocol.CompletionItem, error) {
 	return nil, notImplemented("Resolve")
-}
-
-func (s *Server) SelectionRange(context.Context, *protocol.SelectionRangeParams) ([][]protocol.SelectionRange, error) {
-	return nil, notImplemented("SelectionRange")
 }
 
 func (s *Server) SetTraceNotification(context.Context, *protocol.SetTraceParams) error {

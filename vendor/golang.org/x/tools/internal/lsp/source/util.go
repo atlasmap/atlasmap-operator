@@ -1,3 +1,7 @@
+// Copyright 2019 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package source
 
 import (
@@ -70,7 +74,7 @@ func resolveInvalid(obj types.Object, node ast.Node, info *types.Info) types.Obj
 		default:
 			return nil
 		}
-		typ := types.NewNamed(types.NewTypeName(token.NoPos, obj.Pkg(), typename, nil), nil, nil)
+		typ := types.NewNamed(types.NewTypeName(token.NoPos, obj.Pkg(), typename, nil), types.Typ[types.Invalid], nil)
 		return types.NewVar(obj.Pos(), obj.Pkg(), obj.Name(), typ)
 	}
 	var resultExpr ast.Expr
@@ -98,6 +102,18 @@ func resolveInvalid(obj types.Object, node ast.Node, info *types.Info) types.Obj
 	return formatResult(resultExpr)
 }
 
+func lookupBuiltinDecl(v View, name string) interface{} {
+	builtinPkg := v.BuiltinPackage()
+	if builtinPkg == nil || builtinPkg.Scope == nil {
+		return nil
+	}
+	obj := builtinPkg.Scope.Lookup(name)
+	if obj == nil {
+		return nil
+	}
+	return obj.Decl
+}
+
 func isPointer(T types.Type) bool {
 	_, ok := T.(*types.Pointer)
 	return ok
@@ -109,6 +125,16 @@ func deref(typ types.Type) types.Type {
 		return p.Elem()
 	}
 	return typ
+}
+
+func isTypeName(obj types.Object) bool {
+	_, ok := obj.(*types.TypeName)
+	return ok
+}
+
+func isFunc(obj types.Object) bool {
+	_, ok := obj.(*types.Func)
+	return ok
 }
 
 func formatParams(tup *types.Tuple, variadic bool, qf types.Qualifier) []string {
