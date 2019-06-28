@@ -50,6 +50,7 @@ test-local:
 
 .PHONY: test
 test:
+	go test -v ./test
 	operator-sdk test local ./test/e2e --go-test-flags "-v" --namespace ${NAMESPACE}
 
 .PHONY: run
