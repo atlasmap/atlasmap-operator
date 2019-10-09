@@ -183,6 +183,42 @@ spec:
         x-descriptors:
               - 'urn:alm:descriptor:com.tectonic.ui:Replicas'
               - 'urn:alm:descriptor:com.tectonic.ui:podCount'
+      - description: Override the default AtlasMap image
+        displayName: Image
+        path: image
+        x-descriptors:
+              - 'urn:alm:descriptor:com.tectonic.ui:Image'
+              - 'urn:alm:descriptor:com.tectonic.ui:text'
+      - description: The amount of CPU to limit
+        displayName: Limit CPU
+        path: limitCPU
+        x-descriptors:
+              - 'urn:alm:descriptor:com.tectonic.ui:LimitCPU'
+              - 'urn:alm:descriptor:com.tectonic.ui:text'
+      - description: The amount of memory to limit
+        displayName: Limit Memory
+        path: limitMemory
+        x-descriptors:
+              - 'urn:alm:descriptor:com.tectonic.ui:LimitMemory'
+              - 'urn:alm:descriptor:com.tectonic.ui:text'
+      - description:  The amount of CPU to request
+        displayName: Request CPU
+        path: requestCPU
+        x-descriptors:
+              - 'urn:alm:descriptor:com.tectonic.ui:RequestCPU'
+              - 'urn:alm:descriptor:com.tectonic.ui:text'
+      - description: The amount of memory to request
+        displayName: Request Memory
+        path: requestMemory
+        x-descriptors:
+              - 'urn:alm:descriptor:com.tectonic.ui:RequestMemory'
+              - 'urn:alm:descriptor:com.tectonic.ui:text'
+      - description: The host name to use for the OpenShift route or Kubernetes
+        displayName: Route Host Name
+        path: routeHostName
+        x-descriptors:
+              - 'urn:alm:descriptor:com.tectonic.ui:RouteHostName'
+              - 'urn:alm:descriptor:com.tectonic.ui:text'
       statusDescriptors:
       - description: URL of the AtlasMap instance
         displayName: URL
