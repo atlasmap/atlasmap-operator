@@ -180,6 +180,9 @@ spec:
       - description: Desired number of AtlasMap Pods for the cluster
         displayName: Size
         path: replicas
+        x-descriptors:
+              - 'urn:alm:descriptor:com.tectonic.ui:Replicas'
+              - 'urn:alm:descriptor:com.tectonic.ui:podCount'
       statusDescriptors:
       - description: URL of the AtlasMap instance
         displayName: URL
