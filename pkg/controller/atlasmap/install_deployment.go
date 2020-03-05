@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	healthEndpointPath = "/management/health"
+	healthEndpointPath = "/actuator/health"
 	portAtlasMap       = 8585
 	portJolokia        = 8778
 	portPrometheus     = 9779
