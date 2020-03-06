@@ -205,7 +205,7 @@ func atlasMapImageNameTest(t *testing.T, f *framework.Framework, ctx *framework.
 	}
 
 	crName := "test-atlasmap-custom-image"
-	imageName := "docker.io/atlasmap/atlasmap:1.40"
+	imageName := "docker.io/atlasmap/atlasmap:1.43"
 
 	exampleAtlasMap := &v1alpha1.AtlasMap{
 		ObjectMeta: metav1.ObjectMeta{
