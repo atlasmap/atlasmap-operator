@@ -3,107 +3,50 @@ module github.com/atlasmap/atlasmap-operator
 go 1.13
 
 require (
-	cloud.google.com/go v0.40.0
-	contrib.go.opencensus.io/exporter/ocagent v0.4.12
-	git.apache.org/thrift.git v0.12.0 // indirect
-	github.com/Azure/go-autorest v12.2.0+incompatible
+	cloud.google.com/go v0.40.0 // indirect
 	github.com/Azure/go-autorest/autorest v0.10.0 // indirect
-	github.com/BurntSushi/toml v0.3.1
-	github.com/PuerkitoBio/purell v1.1.1
-	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
 	github.com/RHsyseng/operator-utils v0.0.0-20190625182225-232650febd72
-	github.com/appscode/jsonpatch v0.0.0-20190108182946-7c0e3b262f30
-	github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a
-	github.com/beorn7/perks v1.0.0
-	github.com/census-instrumentation/opencensus-proto v0.2.0
-	github.com/coreos/prometheus-operator v0.29.0
-	github.com/davecgh/go-spew v1.1.1
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/emicklei/go-restful v2.9.6+incompatible
-	github.com/ghodss/yaml v1.0.0
-	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
+	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-logr/logr v0.1.0
-	github.com/go-logr/zapr v0.1.1
-	github.com/go-openapi/analysis v0.19.2
-	github.com/go-openapi/errors v0.19.2
-	github.com/go-openapi/jsonpointer v0.19.2
-	github.com/go-openapi/jsonreference v0.19.2
-	github.com/go-openapi/loads v0.19.2
-	github.com/go-openapi/runtime v0.19.2
-	github.com/go-openapi/spec v0.19.2
-	github.com/go-openapi/strfmt v0.19.0
-	github.com/go-openapi/swag v0.19.2
-	github.com/go-openapi/validate v0.19.2
-	github.com/gobuffalo/envy v1.7.0
-	github.com/gogo/protobuf v1.2.1
-	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	github.com/golang/groupcache v0.0.0-20190129154638-5b532d6fd5ef
-	github.com/golang/lint v0.0.0-20180702182130-06c8688daad7 // indirect
-	github.com/golang/protobuf v1.3.1
-	github.com/google/btree v1.0.0
-	github.com/google/gofuzz v1.0.0
-	github.com/google/uuid v1.1.1
-	github.com/googleapis/gnostic v0.3.0
-	github.com/gophercloud/gophercloud v0.2.0
-	github.com/gregjones/httpcache v0.0.0-20190611155906-901d90724c79
-	github.com/grpc-ecosystem/grpc-gateway v1.9.2
-	github.com/hashicorp/golang-lru v0.5.1
-	github.com/imdario/mergo v0.3.7
-	github.com/inconshreveable/mousetrap v1.0.0
-	github.com/joho/godotenv v1.3.0
-	github.com/json-iterator/go v1.1.6
-	github.com/konsorten/go-windows-terminal-sequences v1.0.2
-	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e
-	github.com/markbates/inflect v1.0.4
-	github.com/matttproud/golang_protobuf_extensions v1.0.1
-	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mitchellh/mapstructure v1.1.2
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd
-	github.com/modern-go/reflect2 v1.0.1
-	github.com/openshift/api v3.9.0+incompatible
-	github.com/operator-framework/operator-sdk v0.8.1
-	github.com/pborman/uuid v1.2.0
-	github.com/petar/GoLLRB v0.0.0-20190514000832-33fb24c13b99
-	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
-	github.com/pkg/errors v0.8.1
-	github.com/pmezard/go-difflib v1.0.0
-	github.com/prometheus/client_golang v1.0.0
-	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
-	github.com/prometheus/common v0.6.0
-	github.com/prometheus/procfs v0.0.3
-	github.com/rogpeppe/go-internal v1.3.0
-	github.com/sirupsen/logrus v1.4.2
-	github.com/spf13/afero v1.2.2
-	github.com/spf13/cobra v0.0.5
-	github.com/spf13/pflag v1.0.3
-	github.com/stretchr/testify v1.3.0
-	go.opencensus.io v0.21.0
-	go.uber.org/atomic v1.4.0
-	go.uber.org/multierr v1.1.0
-	go.uber.org/zap v1.10.0
-	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413
-	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
-	golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58
-	golang.org/x/sys v0.0.0-20190626221950-04f50cda93cb
-	golang.org/x/text v0.3.2
-	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4
-	golang.org/x/tools v0.0.0-20190627033414-4874f863e654
-	google.golang.org/api v0.7.0
-	google.golang.org/appengine v1.6.1
-	google.golang.org/genproto v0.0.0-20190627143821-621ef7fb66c1
-	google.golang.org/grpc v1.21.1
-	gopkg.in/inf.v0 v0.9.1
-	gopkg.in/yaml.v2 v2.2.2
-	k8s.io/api v0.0.0-20190222213804-5cb15d344471
-	k8s.io/apiextensions-apiserver v0.0.0-20190228180357-d002e88f6236
-	k8s.io/apimachinery v0.0.0-20190221213512-86fb29eff628
-	k8s.io/client-go v0.0.0-20181213151034-8d9ed539ba31
-	k8s.io/code-generator v0.0.0-20181117043124-c2090bec4d9b
-	k8s.io/gengo v0.0.0-20190327210449-e17681d19d3a
-	k8s.io/klog v0.3.3
-	k8s.io/kube-openapi v0.0.0-20180711000925-0cf8f7e6ed1d
-	sigs.k8s.io/controller-runtime v0.1.10
-	sigs.k8s.io/controller-tools v0.1.11-0.20190411181648-9d55346c2bde
-	sigs.k8s.io/yaml v1.1.0
+	github.com/go-openapi/runtime v0.19.2 // indirect
+	github.com/go-openapi/spec v0.19.4
+	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
+	github.com/spf13/pflag v1.0.5
+	github.com/stretchr/testify v1.4.0
+	k8s.io/api v0.0.0
+	k8s.io/apimachinery v0.0.0
+	k8s.io/client-go v12.0.0+incompatible
+	k8s.io/kube-openapi v0.0.0-20190918143330-0270cf2f1c1d
+	sigs.k8s.io/controller-runtime v0.4.0
 )
+
+require github.com/operator-framework/operator-sdk v0.15.1
+
+// Pinned to kubernetes-1.16.2
+replace (
+	k8s.io/api => k8s.io/api v0.0.0-20191016110408-35e52d86657a
+	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.0.0-20191016113550-5357c4baaf65
+	k8s.io/apimachinery => k8s.io/apimachinery v0.0.0-20191004115801-a2eda9f80ab8
+	k8s.io/apiserver => k8s.io/apiserver v0.0.0-20191016112112-5190913f932d
+	k8s.io/cli-runtime => k8s.io/cli-runtime v0.0.0-20191016114015-74ad18325ed5
+	k8s.io/client-go => k8s.io/client-go v0.0.0-20191016111102-bec269661e48
+	k8s.io/cloud-provider => k8s.io/cloud-provider v0.0.0-20191016115326-20453efc2458
+	k8s.io/cluster-bootstrap => k8s.io/cluster-bootstrap v0.0.0-20191016115129-c07a134afb42
+	k8s.io/code-generator => k8s.io/code-generator v0.0.0-20191004115455-8e001e5d1894
+	k8s.io/component-base => k8s.io/component-base v0.0.0-20191016111319-039242c015a9
+	k8s.io/cri-api => k8s.io/cri-api v0.0.0-20190828162817-608eb1dad4ac
+	k8s.io/csi-translation-lib => k8s.io/csi-translation-lib v0.0.0-20191016115521-756ffa5af0bd
+	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.0.0-20191016112429-9587704a8ad4
+	k8s.io/kube-controller-manager => k8s.io/kube-controller-manager v0.0.0-20191016114939-2b2b218dc1df
+	k8s.io/kube-proxy => k8s.io/kube-proxy v0.0.0-20191016114407-2e83b6f20229
+	k8s.io/kube-scheduler => k8s.io/kube-scheduler v0.0.0-20191016114748-65049c67a58b
+	k8s.io/kubectl => k8s.io/kubectl v0.0.0-20191016120415-2ed914427d51
+	k8s.io/kubelet => k8s.io/kubelet v0.0.0-20191016114556-7841ed97f1b2
+	k8s.io/legacy-cloud-providers => k8s.io/legacy-cloud-providers v0.0.0-20191016115753-cf0698c3a16b
+	k8s.io/metrics => k8s.io/metrics v0.0.0-20191016113814-3b1a734dba6e
+	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.0.0-20191016112829-06bb3c9d77c9
+)
+
+replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309 // Required by Helm
+
+replace github.com/openshift/api => github.com/openshift/api v0.0.0-20190924102528-32369d4db2ad // Required until https://github.com/operator-framework/operator-lifecycle-manager/pull/1241 is resolved

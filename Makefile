@@ -3,7 +3,7 @@ ORG = atlasmap
 NAMESPACE ?= atlasmap
 PROJECT = atlasmap-operator
 TAG = latest
-OPERATOR_SDK_VERSION=v0.8.1
+OPERATOR_SDK_VERSION=v0.15.1
 QUAY_NAMESPACE ?= atlasmap
 QUAY_REPOSITORY ?= atlasmap-operator
 VERSION = $(shell grep Version version/version.go | cut -d \" -f2)
@@ -55,7 +55,7 @@ test:
 
 .PHONY: run
 run:
-	operator-sdk up local --namespace=${NAMESPACE} --operator-flags=""
+	operator-sdk run --local --namespace=${NAMESPACE} --operator-flags=""
 
 .PHONY: scorecard
 scorecard:
