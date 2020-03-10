@@ -49,7 +49,7 @@ The AtlasMap operator can:
 To install the required CRDs, roles, role binding & service account run the following commands as a privileged user.
 
 ```console
-$ kubectl apply -f deploy/crds/atlasmap_v1alpha1_atlasmap_crd.yaml
+$ kubectl apply -f deploy/crds/atlasmap.io_atlasmaps_crd.yaml
 $ kubectl apply -f deploy/service_account.yaml
 $ kubectl apply -f deploy/role.yaml
 $ kubectl apply -f deploy/role_binding.yaml
@@ -77,7 +77,7 @@ When the operator is running you can deploy an example AtlasMap custom resource:
 
 ```console
 # Create example-atlasmap
-$ kubectl create -f deploy/crds/atlasmap_v1alpha1_atlasmap_cr.yaml
+$ kubectl create -f deploy/crds/atlasmap_cr.yaml
 atlasmap.atlasmap.io/example-atlasmap created
 
 # Verify example-atlasmap

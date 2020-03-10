@@ -35,7 +35,7 @@ install-crds:
 
 .PHONY: uninstall
 uninstall:
-	kubectl delete -f deploy/crds/atlasmap_v1alpha1_atlasmap_crd.yaml
+	kubectl delete -f deploy/crds/atlasmap.io_atlasmaps_crd.yaml
 	kubectl delete -f deploy/service_account.yaml -n ${NAMESPACE}
 	kubectl delete -f deploy/role.yaml -n ${NAMESPACE}
 	kubectl delete -f deploy/role_binding.yaml -n ${NAMESPACE}
@@ -60,7 +60,7 @@ run:
 .PHONY: scorecard
 scorecard:
 	operator-sdk scorecard \
-		--cr-manifest=deploy/crds/atlasmap_v1alpha1_atlasmap_cr.yaml \
+		--cr-manifest=deploy/crds/atlasmap.io_atlasmaps_crd.yaml \
 		--csv-path deploy/olm-catalog/atlasmap-operator/$(VERSION)/atlasmap-operator.v$(VERSION).clusterserviceversion.yaml
 
 .PHONY: install-operator-sdk

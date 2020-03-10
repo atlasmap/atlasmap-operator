@@ -3,6 +3,15 @@ kind: CustomResourceDefinition
 metadata:
   name: atlasmaps.atlasmap.io
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.URL
+    description: AtlasMap URL
+    name: URL
+    type: string
+  - JSONPath: .status.image
+    description: AtlasMap image
+    name: Image
+    type: string
   group: atlasmap.io
   names:
     kind: AtlasMap
@@ -11,6 +20,10 @@ spec:
     singular: atlasmap
   scope: Namespaced
   subresources:
+    scale:
+      labelSelectorPath: .status.labelSelector
+      specReplicasPath: .spec.replicas
+      statusReplicasPath: .status.replicas
     status: {}
   validation:
     openAPIV3Schema:
@@ -32,35 +45,42 @@ spec:
           description: AtlasMapSpec defines the desired state of AtlasMap
           properties:
             image:
+              description: Image sets the container image used for AtlasMap
               type: string
             limitCPU:
+              description: The amount of CPU to limit
+              pattern: '[0-9]+m?$'
               type: string
             limitMemory:
+              description: The amount of memory to request
+              pattern: '[0-9]+([kKmMgGtTpPeE]i?)?$'
               type: string
             replicas:
-              description: 'INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-                Important: Run "operator-sdk generate k8s" to regenerate code after
-                modifying this file Add custom validation using kubebuilder tags:
-                https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              description: Replicas determines the desired number of running AtlasMap
+                pods
               format: int32
               type: integer
             requestCPU:
+              description: The amount of CPU to request
+              pattern: '[0-9]+m?$'
               type: string
             requestMemory:
+              description: The amount of memory to request
+              pattern: '[0-9]+([kKmMgGtTpPeE]i?)?$'
               type: string
             routeHostName:
+              description: RouteHostName sets the host name to use on the Ingress
+                or OpenShift Route
               type: string
           type: object
         status:
           description: AtlasMapStatus defines the observed state of AtlasMap
           properties:
             URL:
-              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                of cluster Important: Run "operator-sdk generate k8s" to regenerate
-                code after modifying this file Add custom validation using kubebuilder
-                tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html'
+              description: The URL where AtlasMap can be accessed
               type: string
             image:
+              description: The container image that AtlasMap is using
               type: string
           type: object
       type: object

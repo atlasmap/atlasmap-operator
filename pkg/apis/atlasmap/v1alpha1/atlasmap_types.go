@@ -10,18 +10,22 @@ import (
 // AtlasMapSpec defines the desired state of AtlasMap
 // +k8s:openapi-gen=true
 type AtlasMapSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	// Replicas determines the desired number of running AtlasMap pods
 	Replicas      int32  `json:"replicas,omitempty"`
+	// RouteHostName sets the host name to use on the Ingress or OpenShift Route
 	RouteHostName string `json:"routeHostName,omitempty"`
+	// Image sets the container image used for AtlasMap
 	Image         string `json:"image,omitempty"`
+	// The amount of CPU to request
 	// +kubebuilder:validation:Pattern=[0-9]+m?$
 	RequestCPU    string `json:"requestCPU,omitempty"`
+	// The amount of memory to request
 	// +kubebuilder:validation:Pattern=[0-9]+([kKmMgGtTpPeE]i?)?$
 	RequestMemory string `json:"requestMemory,omitempty"`
+	// The amount of CPU to limit
 	// +kubebuilder:validation:Pattern=[0-9]+m?$
 	LimitCPU      string `json:"limitCPU,omitempty"`
+	// The amount of memory to request
 	// +kubebuilder:validation:Pattern=[0-9]+([kKmMgGtTpPeE]i?)?$
 	LimitMemory   string `json:"limitMemory,omitempty"`
 }
@@ -29,10 +33,9 @@ type AtlasMapSpec struct {
 // AtlasMapStatus defines the observed state of AtlasMap
 // +k8s:openapi-gen=true
 type AtlasMapStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
-	// Add custom validation using kubebuilder tags: https://book.kubebuilder.io/beyond_basics/generating_crd.html
+	// The URL where AtlasMap can be accessed
 	URL   string `json:"URL,omitempty"`
+	// The container image that AtlasMap is using
 	Image string `json:"image,omitempty"`
 }
 
