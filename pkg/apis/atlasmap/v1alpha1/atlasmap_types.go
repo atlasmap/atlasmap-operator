@@ -16,9 +16,13 @@ type AtlasMapSpec struct {
 	Replicas      int32  `json:"replicas,omitempty"`
 	RouteHostName string `json:"routeHostName,omitempty"`
 	Image         string `json:"image,omitempty"`
+	// +kubebuilder:validation:Pattern=[0-9]+m?$
 	RequestCPU    string `json:"requestCPU,omitempty"`
+	// +kubebuilder:validation:Pattern=[0-9]+([kKmMgGtTpPeE]i?)?$
 	RequestMemory string `json:"requestMemory,omitempty"`
+	// +kubebuilder:validation:Pattern=[0-9]+m?$
 	LimitCPU      string `json:"limitCPU,omitempty"`
+	// +kubebuilder:validation:Pattern=[0-9]+([kKmMgGtTpPeE]i?)?$
 	LimitMemory   string `json:"limitMemory,omitempty"`
 }
 
@@ -37,6 +41,9 @@ type AtlasMapStatus struct {
 // AtlasMap is the Schema for the atlasmaps API
 // +k8s:openapi-gen=true
 // +kubebuilder:subresource:status
+// +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas,selectorpath=.status.labelSelector
+// +kubebuilder:printcolumn:name="URL",description=AtlasMap URL,type=string,JSONPath=`.status.URL`
+// +kubebuilder:printcolumn:name="Image",description=AtlasMap image,type=string,JSONPath=`.status.image`
 type AtlasMap struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
