@@ -11,9 +11,9 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1.AtlasMap":       schema_pkg_apis_atlasmap_v1alpha1_AtlasMap(ref),
-		"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1.AtlasMapSpec":   schema_pkg_apis_atlasmap_v1alpha1_AtlasMapSpec(ref),
-		"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1.AtlasMapStatus": schema_pkg_apis_atlasmap_v1alpha1_AtlasMapStatus(ref),
+		"./pkg/apis/atlasmap/v1alpha1.AtlasMap":       schema_pkg_apis_atlasmap_v1alpha1_AtlasMap(ref),
+		"./pkg/apis/atlasmap/v1alpha1.AtlasMapSpec":   schema_pkg_apis_atlasmap_v1alpha1_AtlasMapSpec(ref),
+		"./pkg/apis/atlasmap/v1alpha1.AtlasMapStatus": schema_pkg_apis_atlasmap_v1alpha1_AtlasMapStatus(ref),
 	}
 }
 
@@ -45,19 +45,19 @@ func schema_pkg_apis_atlasmap_v1alpha1_AtlasMap(ref common.ReferenceCallback) co
 					},
 					"spec": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1.AtlasMapSpec"),
+							Ref: ref("./pkg/apis/atlasmap/v1alpha1.AtlasMapSpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
-							Ref: ref("github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1.AtlasMapStatus"),
+							Ref: ref("./pkg/apis/atlasmap/v1alpha1.AtlasMapStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1.AtlasMapSpec", "github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1.AtlasMapStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"./pkg/apis/atlasmap/v1alpha1.AtlasMapSpec", "./pkg/apis/atlasmap/v1alpha1.AtlasMapStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 

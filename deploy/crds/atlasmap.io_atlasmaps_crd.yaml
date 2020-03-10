@@ -10,6 +10,8 @@ spec:
     plural: atlasmaps
     singular: atlasmap
   scope: Namespaced
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       description: AtlasMap is the Schema for the atlasmaps API

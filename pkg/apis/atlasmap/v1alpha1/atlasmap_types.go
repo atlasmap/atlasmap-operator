@@ -36,6 +36,7 @@ type AtlasMapStatus struct {
 
 // AtlasMap is the Schema for the atlasmaps API
 // +k8s:openapi-gen=true
+// +kubebuilder:subresource:status
 type AtlasMap struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
