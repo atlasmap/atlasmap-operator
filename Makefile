@@ -31,7 +31,7 @@ install: install-crds
 
 .PHONY: install-crds
 install-crds:
-	kubectl apply -f deploy/crds/atlasmap_v1alpha1_atlasmap_crd.yaml
+	kubectl apply -f deploy/crds/atlasmap.io_atlasmaps_crd.yaml
 
 .PHONY: uninstall
 uninstall:
