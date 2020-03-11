@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	healthEndpointPath = "/actuator/health"
 	portAtlasMap       = 8585
 	portJolokia        = 8778
 	portPrometheus     = 9779
@@ -35,7 +34,12 @@ func (action *installDeploymentAction) handle(ctx context.Context, atlasMap *v1a
 	deployment := &appsv1.Deployment{}
 	err := action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, deployment)
 	if err != nil && errors.IsNotFound(err) {
-		deployment = createAtlasMapDeployment(atlasMap)
+		probePath, err := atlasMapProbePath(atlasMap)
+		if err != nil {
+			return err
+		}
+
+		deployment = createAtlasMapDeployment(atlasMap, probePath)
 
 		if err := configureResources(atlasMap, &deployment.Spec.Template.Spec.Containers[0]); err != nil {
 			return err
@@ -52,7 +56,7 @@ func (action *installDeploymentAction) handle(ctx context.Context, atlasMap *v1a
 	return nil
 }
 
-func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap) *appsv1.Deployment {
+func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap, probePath string) *appsv1.Deployment {
 	return &appsv1.Deployment{
 		TypeMeta: v1.TypeMeta{
 			APIVersion: "apps/v1",
@@ -97,7 +101,7 @@ func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap) *appsv1.Deployment {
 								HTTPGet: &corev1.HTTPGetAction{
 									Scheme: corev1.URISchemeHTTP,
 									Port:   intstr.FromString("http"),
-									Path:   healthEndpointPath,
+									Path:   probePath,
 								}},
 							InitialDelaySeconds: 60,
 						},
@@ -106,7 +110,7 @@ func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap) *appsv1.Deployment {
 								HTTPGet: &corev1.HTTPGetAction{
 									Scheme: corev1.URISchemeHTTP,
 									Port:   intstr.FromString("http"),
-									Path:   healthEndpointPath,
+									Path:   probePath,
 								}},
 							InitialDelaySeconds: 15,
 							FailureThreshold:    5,

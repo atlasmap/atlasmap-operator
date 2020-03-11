@@ -16,8 +16,8 @@ metadata:
 spec:
   # The desired number of replicas
   replicas: 1
-  # Override the default AtlasMap image
-  image: docker.io/atlasmap/atlasmap
+  # Override the default AtlasMap image version. The default is 'latest'.
+  version: 1.43.4
   # The host name to use for the OpenShift route or Kubernetes Ingress. If not specified, this is generated automatically
   routeHostName: example-atlasmap.192.168.42.115.nip.io
   # The amount of CPU to request
@@ -38,7 +38,7 @@ The AtlasMap operator can:
 * AtlasMap deployment, route and service objects
 ### Update
 * Reconcile `replicas` count into the deployment
-* Reconcile `image` into the deployment to override the [default](https://hub.docker.com/r/atlasmap/atlasmap)
+* Reconcile `version` for the container image tag into the deployment and override the [default](https://hub.docker.com/r/atlasmap/atlasmap)
 * Reconcile resource requests for CPU and memory into the deployment
 * Reconcile resource limits for CPU and memory into the deployment
 ### Delete

@@ -1,11 +1,12 @@
-
-ORG = atlasmap
+ATLASMAP_IMAGE=docker.io/atlasmap/atlasmap
+ATLASMAP_IMAGE_TAG=latest
 NAMESPACE ?= atlasmap
-PROJECT = atlasmap-operator
-TAG = latest
 OPERATOR_SDK_VERSION=v0.15.1
+ORG = atlasmap
+PROJECT = atlasmap-operator
 QUAY_NAMESPACE ?= atlasmap
 QUAY_REPOSITORY ?= atlasmap-operator
+TAG = latest
 VERSION = $(shell grep Version version/version.go | cut -d \" -f2)
 
 .PHONY: compile
@@ -15,9 +16,14 @@ compile:
 .PHONY: generate
 generate:
 	operator-sdk generate k8s
+	operator-sdk generate crds
+
+.PHONY: generate-config
+generate-config:
+	build/scripts/generate-source.sh $(ATLASMAP_IMAGE) $(ATLASMAP_IMAGE_TAG)
 
 .PHONY: build
-build:
+build: generate-config
 	operator-sdk build docker.io/${ORG}/${PROJECT}:${TAG}
 
 .PHONY: image

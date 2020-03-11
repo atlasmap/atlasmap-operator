@@ -16,6 +16,7 @@ package e2e
 import (
 	goctx "context"
 	"fmt"
+	"github.com/atlasmap/atlasmap-operator/pkg/config"
 	"testing"
 	"time"
 
@@ -25,7 +26,6 @@ import (
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis"
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
-	"github.com/atlasmap/atlasmap-operator/pkg/controller/atlasmap"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
@@ -87,8 +87,8 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 		return err
 	}
 
-	if exampleAtlasMap.Status.Image != atlasmap.DefaultImageName {
-		return fmt.Errorf("Expected AtlasMap.Status.Image to be %s but was %s", atlasmap.DefaultImageName, exampleAtlasMap.Status.Image)
+	if exampleAtlasMap.Status.Image != config.DefaultConfiguration.GetAtlasMapImage() {
+		return fmt.Errorf("expected AtlasMap.Status.Image to be %s but was %s", config.DefaultConfiguration.AtlasMapImage, exampleAtlasMap.Status.Image)
 	}
 
 	// Verify a service was created
@@ -123,7 +123,7 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 
 	expectedURL := fmt.Sprintf("%s://%s", scheme, host)
 	if exampleAtlasMap.Status.URL != expectedURL {
-		return fmt.Errorf("Expected AtlasMap.Status.URL to be %s but was %s", expectedURL, exampleAtlasMap.Status.URL)
+		return fmt.Errorf("expected AtlasMap.Status.URL to be %s but was %s", expectedURL, exampleAtlasMap.Status.URL)
 	}
 
 	return nil
@@ -192,7 +192,7 @@ func atlasMapScaleTest(t *testing.T, f *framework.Framework, ctx *framework.Test
 
 	// Verify update of deployment replicas syncs back to AtlasMap replicas
 	if replicas != exampleAtlasMap.Spec.Replicas {
-		return fmt.Errorf("Expected AtlasMap replicas to be %d but got %d", replicas, exampleAtlasMap.Spec.Replicas)
+		return fmt.Errorf("expected AtlasMap replicas to be %d but got %d", replicas, exampleAtlasMap.Spec.Replicas)
 	}
 
 	return nil
@@ -214,7 +214,7 @@ func atlasMapImageNameTest(t *testing.T, f *framework.Framework, ctx *framework.
 		},
 		Spec: v1alpha1.AtlasMapSpec{
 			Replicas: 1,
-			Image:    imageName,
+			Version:  "1.43",
 		},
 	}
 
@@ -238,8 +238,8 @@ func atlasMapImageNameTest(t *testing.T, f *framework.Framework, ctx *framework.
 	}
 
 	container := deployment.Spec.Template.Spec.Containers[0]
-	if container.Image != exampleAtlasMap.Spec.Image {
-		return fmt.Errorf("Expected container image to match %s but got %s", exampleAtlasMap.Spec.Image, container.Image)
+	if container.Image != imageName {
+		return fmt.Errorf("expected container image to match %s but got %s", imageName, container.Image)
 	}
 
 	return nil
@@ -294,19 +294,19 @@ func atlasMapResourcesTest(t *testing.T, f *framework.Framework, ctx *framework.
 	container := deployment.Spec.Template.Spec.Containers[0]
 
 	if container.Resources.Limits.Cpu().String() != limitCPU {
-		return fmt.Errorf("Expected CPU limit to match %s but got %s", limitCPU, container.Resources.Limits.Cpu().String())
+		return fmt.Errorf("expected CPU limit to match %s but got %s", limitCPU, container.Resources.Limits.Cpu().String())
 	}
 
 	if container.Resources.Limits.Memory().String() != limitMemory {
-		return fmt.Errorf("Expected memory limit to match %s but got %s", limitMemory, container.Resources.Limits.Memory().String())
+		return fmt.Errorf("expected memory limit to match %s but got %s", limitMemory, container.Resources.Limits.Memory().String())
 	}
 
 	if container.Resources.Requests.Cpu().String() != requestCPU {
-		return fmt.Errorf("Expected CPU request to match %s but got %s", requestCPU, container.Resources.Requests.Cpu().String())
+		return fmt.Errorf("expected CPU request to match %s but got %s", requestCPU, container.Resources.Requests.Cpu().String())
 	}
 
 	if container.Resources.Requests.Memory().String() != requestMemory {
-		return fmt.Errorf("Expected memory request to match %s but got %s", requestMemory, container.Resources.Requests.Memory().String())
+		return fmt.Errorf("expected memory request to match %s but got %s", requestMemory, container.Resources.Requests.Memory().String())
 	}
 
 	return nil
@@ -329,7 +329,10 @@ func AtlasMapCluster(t *testing.T) {
 	}
 
 	f := framework.Global
-	routev1.AddToScheme(framework.Global.Scheme)
+	err = routev1.Install(framework.Global.Scheme)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if !f.LocalOperator {
 		if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "atlasmap-operator", 1, retryInterval, timeout); err != nil {

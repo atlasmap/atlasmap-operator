@@ -119,12 +119,27 @@ func (action *updateAction) handle(ctx context.Context, atlasMap *v1alpha1.Atlas
 
 	containers := deployment.Spec.Template.Spec.Containers
 	if len(containers) > 0 {
-		// Reconcile image name
+		// Reconcile image name from the AtlasMap spec version
 		container := &containers[0]
 
 		image := atlasMapImage(atlasMap)
 		if container.Image != image {
 			container.Image = image
+
+			// Reconcile the endpoint path for health & liveness probes
+			probePath, err := atlasMapProbePath(atlasMap)
+			if err != nil {
+				return err
+			}
+
+			if container.LivenessProbe.HTTPGet.Path != probePath {
+				container.LivenessProbe.HTTPGet.Path = probePath
+			}
+
+			if container.ReadinessProbe.HTTPGet.Path != probePath {
+				container.ReadinessProbe.HTTPGet.Path = probePath
+			}
+
 			if err := action.client.Update(ctx, deployment); err != nil {
 				return err
 			}

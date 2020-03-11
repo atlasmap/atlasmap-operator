@@ -17,7 +17,6 @@ import (
 	"github.com/atlasmap/atlasmap-operator/pkg/apis"
 	atlasmapconfig "github.com/atlasmap/atlasmap-operator/pkg/config"
 	"github.com/atlasmap/atlasmap-operator/pkg/controller"
-	"github.com/atlasmap/atlasmap-operator/pkg/controller/atlasmap"
 	routev1 "github.com/openshift/api/route/v1"
 	"github.com/operator-framework/operator-sdk/pkg/k8sutil"
 	kubemetrics "github.com/operator-framework/operator-sdk/pkg/kube-metrics"
@@ -44,13 +43,14 @@ func printVersion() {
 	log.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
 	log.Info(fmt.Sprintf("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH))
 	log.Info(fmt.Sprintf("Version of operator-sdk: %v", sdkVersion.Version))
+	log.Info(fmt.Sprintf("AtlasMap default image: %s", atlasmapconfig.DefaultConfiguration.GetAtlasMapImage()))
 }
 
 func init() {
 	flagset := flag.CommandLine
-	flagset.StringVar(&atlasmapconfig.DefaultConfiguration.AtlasMapImage, "atlasmap-image", atlasmap.DefaultImageName, "AtlasMap container image")
+	flagset.StringVar(&atlasmapconfig.DefaultConfiguration.AtlasMapImage, "atlasmap-image-name", atlasmapconfig.DefaultConfiguration.AtlasMapImage, "AtlasMap container image name")
+	flagset.StringVar(&atlasmapconfig.DefaultConfiguration.Version, "atlasmap-image-version", atlasmapconfig.DefaultConfiguration.Version, "AtlasMap container image version")
 	flagset.Parse(os.Args[1:])
-
 }
 
 func main() {

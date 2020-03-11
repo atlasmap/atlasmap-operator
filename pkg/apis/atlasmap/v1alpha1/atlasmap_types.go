@@ -14,8 +14,8 @@ type AtlasMapSpec struct {
 	Replicas      int32  `json:"replicas,omitempty"`
 	// RouteHostName sets the host name to use on the Ingress or OpenShift Route
 	RouteHostName string `json:"routeHostName,omitempty"`
-	// Image sets the container image used for AtlasMap
-	Image         string `json:"image,omitempty"`
+	// Version sets the version of the container image used for AtlasMap
+	Version       string `json:"version,omitempty"`
 	// The amount of CPU to request
 	// +kubebuilder:validation:Pattern=[0-9]+m?$
 	RequestCPU    string `json:"requestCPU,omitempty"`

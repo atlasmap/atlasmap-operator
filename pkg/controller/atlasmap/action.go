@@ -2,6 +2,9 @@ package atlasmap
 
 import (
 	"context"
+	"github.com/atlasmap/atlasmap-operator/pkg/util"
+	"strconv"
+	"strings"
 
 	"k8s.io/client-go/rest"
 
@@ -15,9 +18,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
-
-// DefaultImageName defines the default AtlasMap container image to use
-const DefaultImageName = "docker.io/atlasmap/atlasmap:latest"
 
 var log = logf.Log.WithName("action")
 
@@ -61,8 +61,31 @@ func atlasMapLabels(atlasMap *v1alpha1.AtlasMap) map[string]string {
 }
 
 func atlasMapImage(atlasMap *v1alpha1.AtlasMap) string {
-	if len(atlasMap.Spec.Image) == 0 {
-		return config.DefaultConfiguration.AtlasMapImage
+	if len(atlasMap.Spec.Version) == 0 {
+		return config.DefaultConfiguration.GetAtlasMapImage()
 	}
-	return atlasMap.Spec.Image
+	return util.ImageName(config.DefaultConfiguration.AtlasMapImage, atlasMap.Spec.Version)
+}
+
+func atlasMapProbePath(atlasMap *v1alpha1.AtlasMap) (string, error) {
+	// Handle differences in Spring Boot actuator health endpoint path
+	if atlasMap.Spec.Version != "" {
+		versionParts := strings.Split(atlasMap.Spec.Version, ".")
+		if len(versionParts) > 1 {
+			major, err := strconv.Atoi(versionParts[0])
+			if err != nil {
+				return "", err
+			}
+
+			minor, err := strconv.Atoi(versionParts[1])
+			if err != nil {
+				return "", err
+			}
+
+			if major == 1 && minor < 43 {
+				return "/management/health", nil
+			}
+		}
+	}
+	return "/actuator/health", nil
 }

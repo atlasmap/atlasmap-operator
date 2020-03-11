@@ -6,10 +6,10 @@ spec:
   # The number of desired replicas
   replicas: 1
 
-  # The AtlasMap image to use. The default is docker.io/atlasmap/atlasmap:latest
-  # The default image can be overridden by providing an argument to the AtlasMap operator deployment spec
-  # E.g: --atlasmap-image=docker.io/custom-namespace/custom-image:latest
-  # image: docker.io/atlasmap/atlasmap:latest
+  # The version of the AtlasMap to use. The default is 'latest'.
+  # The default image name and tag can be overridden by providing arguments to the AtlasMap operator deployment spec
+  # E.g: --atlasmap-image-name=docker.io/custom-namespace/custom-image --atlasmap-image-version=1.2.3
+  # version: latest
 
   # The host name to use for the OpenShift route or Kubernetes Ingress. If not specified, this is generated automatically
   # routeHostName: example-atlasmap.192.168.42.115.nip.io

@@ -34,3 +34,7 @@ func IngressHostName(atlasMap *v1alpha1.AtlasMap) string {
 	}
 	return hostName
 }
+
+func ImageName(image string, tag string) string {
+	return fmt.Sprintf("%s:%s", image, tag)
+}

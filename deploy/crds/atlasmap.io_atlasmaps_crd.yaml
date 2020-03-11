@@ -44,9 +44,6 @@ spec:
         spec:
           description: AtlasMapSpec defines the desired state of AtlasMap
           properties:
-            image:
-              description: Image sets the container image used for AtlasMap
-              type: string
             limitCPU:
               description: The amount of CPU to limit
               pattern: '[0-9]+m?$'
@@ -71,6 +68,10 @@ spec:
             routeHostName:
               description: RouteHostName sets the host name to use on the Ingress
                 or OpenShift Route
+              type: string
+            version:
+              description: Version sets the version of the container image used for
+                AtlasMap
               type: string
           type: object
         status:
