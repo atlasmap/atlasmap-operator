@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: atlasmap-operator
+  labels:
+    app: atlasmap
+    atlasmap.io/component: operator
 spec:
   replicas: 1
   selector:
@@ -11,6 +14,8 @@ spec:
     metadata:
       labels:
         name: atlasmap-operator
+        app: atlasmap
+        atlasmap.io/component: operator
     spec:
       serviceAccountName: atlasmap-operator
       containers:
