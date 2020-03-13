@@ -82,8 +82,8 @@ atlasmap.atlasmap.io/example-atlasmap created
 
 # Verify example-atlasmap
 $ kubectl get atlasmap example-atlasmap
-NAME               URL                                                      IMAGE
-example-atlasmap   https://example-atlasmap-atlasmap.192.168.42.84.nip.io   docker.io/atlasmap/atlasmap
+NAME               URL                                                       IMAGE                                PHASE
+example-atlasmap   https://example-atlasmap-atlasmap.192.168.42.186.nip.io   docker.io/atlasmap/atlasmap:latest   Deployed
 
 # Scale example-atlasmap
 $ kubectl patch atlasmap example-atlasmap --type='merge' -p '{"spec":{"replicas":3}}'

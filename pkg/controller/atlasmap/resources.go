@@ -62,7 +62,7 @@ func resourceListChanged(cr *v1alpha1.AtlasMap, resources corev1.ResourceRequire
 		return false, err
 	}
 
-	return (limitsUpdates || requestsUpdated), nil
+	return limitsUpdates || requestsUpdated, nil
 }
 
 func resourceListQuantityChanged(resourceList corev1.ResourceList, cpu string, memory string) (bool, error) {

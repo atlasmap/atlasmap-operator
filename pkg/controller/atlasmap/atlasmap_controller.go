@@ -65,7 +65,8 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 			UpdateFunc: func(e event.UpdateEvent) bool {
 				oldDeployment := e.ObjectOld.(*appsv1.Deployment)
 				newDeployment := e.ObjectNew.(*appsv1.Deployment)
-				return !reflect.DeepEqual(oldDeployment.Spec, newDeployment.Spec)
+				return !reflect.DeepEqual(oldDeployment.Spec, newDeployment.Spec) ||
+					   oldDeployment.Status.ReadyReplicas != newDeployment.Status.ReadyReplicas
 			},
 		})
 	if err != nil {
@@ -137,12 +138,12 @@ func (r *ReconcileAtlasMap) Reconcile(request reconcile.Request) (reconcile.Resu
 	}
 
 	for _, a := range actions {
-		log.Info("Running action", "action", reflect.TypeOf(a))
+		log.Info("Running action: " + a.getName())
 		if err := a.handle(ctx, instance); err != nil {
 			if errors.IsConflict(err) {
 				return reconcile.Result{Requeue: true}, nil
 			}
-			reqLogger.Error(err, "Error running action", "action", reflect.TypeOf(a))
+			reqLogger.Error(err, "Error running action: "+a.getName())
 			return reconcile.Result{}, err
 		}
 	}

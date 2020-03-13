@@ -11,32 +11,34 @@ import (
 // +k8s:openapi-gen=true
 type AtlasMapSpec struct {
 	// Replicas determines the desired number of running AtlasMap pods
-	Replicas      int32  `json:"replicas,omitempty"`
+	Replicas int32 `json:"replicas,omitempty"`
 	// RouteHostName sets the host name to use on the Ingress or OpenShift Route
 	RouteHostName string `json:"routeHostName,omitempty"`
 	// Version sets the version of the container image used for AtlasMap
-	Version       string `json:"version,omitempty"`
+	Version string `json:"version,omitempty"`
 	// The amount of CPU to request
 	// +kubebuilder:validation:Pattern=[0-9]+m?$
-	RequestCPU    string `json:"requestCPU,omitempty"`
+	RequestCPU string `json:"requestCPU,omitempty"`
 	// The amount of memory to request
 	// +kubebuilder:validation:Pattern=[0-9]+([kKmMgGtTpPeE]i?)?$
 	RequestMemory string `json:"requestMemory,omitempty"`
 	// The amount of CPU to limit
 	// +kubebuilder:validation:Pattern=[0-9]+m?$
-	LimitCPU      string `json:"limitCPU,omitempty"`
+	LimitCPU string `json:"limitCPU,omitempty"`
 	// The amount of memory to request
 	// +kubebuilder:validation:Pattern=[0-9]+([kKmMgGtTpPeE]i?)?$
-	LimitMemory   string `json:"limitMemory,omitempty"`
+	LimitMemory string `json:"limitMemory,omitempty"`
 }
 
 // AtlasMapStatus defines the observed state of AtlasMap
 // +k8s:openapi-gen=true
 type AtlasMapStatus struct {
 	// The URL where AtlasMap can be accessed
-	URL   string `json:"URL,omitempty"`
+	URL string `json:"URL,omitempty"`
 	// The container image that AtlasMap is using
 	Image string `json:"image,omitempty"`
+	// The current phase that the AtlasMap resource is in
+	Phase AtlasMapPhase `json:"phase,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -47,6 +49,7 @@ type AtlasMapStatus struct {
 // +kubebuilder:subresource:scale:specpath=.spec.replicas,statuspath=.status.replicas,selectorpath=.status.labelSelector
 // +kubebuilder:printcolumn:name="URL",description=AtlasMap URL,type=string,JSONPath=`.status.URL`
 // +kubebuilder:printcolumn:name="Image",description=AtlasMap image,type=string,JSONPath=`.status.image`
+// +kubebuilder:printcolumn:name="Phase",description=AtlasMap phase,type=string,JSONPath=`.status.phase`
 type AtlasMap struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
@@ -63,6 +66,16 @@ type AtlasMapList struct {
 	metav1.ListMeta `json:"metadata,omitempty"`
 	Items           []AtlasMap `json:"items"`
 }
+
+// AtlasMapPhase --
+type AtlasMapPhase string
+
+const (
+	// AtlasMapPhasePhaseInitializing --
+	AtlasMapPhasePhaseInitializing AtlasMapPhase = "Initializing"
+	// AtlasMapPhasePhaseDeployed --
+	AtlasMapPhasePhaseDeployed AtlasMapPhase = "Deployed"
+)
 
 func init() {
 	SchemeBuilder.Register(&AtlasMap{}, &AtlasMapList{})

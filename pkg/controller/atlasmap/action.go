@@ -23,6 +23,7 @@ var log = logf.Log.WithName("action")
 
 type action interface {
 	handle(ctx context.Context, atlasMap *v1alpha1.AtlasMap) error
+	getName() string
 }
 
 type baseAction struct {
@@ -30,23 +31,41 @@ type baseAction struct {
 	client client.Client
 	scheme *runtime.Scheme
 	config *rest.Config
+	name   string
 }
 
 func newOperatorActions(log logr.Logger, mgr manager.Manager) []action {
+	isOpenShift, err := util.IsOpenShift(mgr.GetConfig())
+	if err != nil {
+		log.Error(err, "Failed to determine cluster version. Defaulting to Kubernetes mode.")
+	}
+
+	var routeAction action
+	if isOpenShift {
+		routeAction = newRouteAction(log.WithValues("type", "create-route"), mgr)
+	} else {
+		routeAction = newIngressAction(log.WithValues("type", "create-ingress"), mgr)
+	}
+
 	return []action{
-		newInstallRouteAction(log.WithValues("type", "create-route"), mgr),
-		newInstallDeploymentAction(log.WithValues("type", "create-deployment"), mgr),
-		newUpdateAction(log.WithValues("type", "update"), mgr),
+		newServiceAction(log.WithValues("type", "service"), mgr),
+		routeAction,
+		newDeploymentAction(log.WithValues("type", "create-deployment"), mgr),
 	}
 }
 
-func newBaseAction(log logr.Logger, mgr manager.Manager) baseAction {
+func newBaseAction(log logr.Logger, mgr manager.Manager, name string) baseAction {
 	return baseAction{
 		log,
 		mgr.GetClient(),
 		mgr.GetScheme(),
 		mgr.GetConfig(),
+		name,
 	}
+}
+
+func (action *baseAction) getName() string {
+	return action.name
 }
 
 func (action *baseAction) deployResource(ctx context.Context, atlasMap *v1alpha1.AtlasMap, resource runtime.Object) error {
@@ -54,6 +73,15 @@ func (action *baseAction) deployResource(ctx context.Context, atlasMap *v1alpha1
 		return err
 	}
 	return action.client.Create(ctx, resource)
+}
+
+func (action *baseAction) updatePhase(ctx context.Context, atlasMap *v1alpha1.AtlasMap, phase v1alpha1.AtlasMapPhase) {
+	if atlasMap.Status.Phase != phase {
+		atlasMap.Status.Phase = phase
+		if err := action.client.Status().Update(ctx, atlasMap); err != nil {
+			action.log.Error(err, "Error updating AtlasMap status", "phase", phase)
+		}
+	}
 }
 
 func atlasMapLabels(atlasMap *v1alpha1.AtlasMap) map[string]string {
