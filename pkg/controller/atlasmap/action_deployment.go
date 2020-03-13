@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	atlasMapVersionAnnotation = "atlasmap.io/atlasmapversion"
+	atlasMapVersionAnnotation = "atlasmap.io/atlasmap.version"
 	portAtlasMap              = 8585
 	portJolokia               = 8778
 	portPrometheus            = 9779

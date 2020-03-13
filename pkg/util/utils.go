@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/discovery"
@@ -26,8 +25,8 @@ func IsOpenShift(config *rest.Config) (bool, error) {
 	return true, nil
 }
 
-// IngressHostName generates a host name for the Ingress host
-func IngressHostName(atlasMap *v1alpha1.AtlasMap) string {
+// GetIngressHostNameFor generates a host name for the Ingress host
+func GetIngressHostNameFor(atlasMap *v1alpha1.AtlasMap) string {
 	hostName := atlasMap.Spec.RouteHostName
 	if len(hostName) == 0 {
 		hostName = fmt.Sprintf("%s-%s", atlasMap.Name, atlasMap.Namespace)
@@ -35,6 +34,7 @@ func IngressHostName(atlasMap *v1alpha1.AtlasMap) string {
 	return hostName
 }
 
+// ImageName generates a container image name from the given name and tag
 func ImageName(image string, tag string) string {
 	return fmt.Sprintf("%s:%s", image, tag)
 }

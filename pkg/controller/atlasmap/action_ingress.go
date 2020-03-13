@@ -64,7 +64,7 @@ func createIngress(atlasMap *v1alpha1.AtlasMap) *v1beta1.Ingress {
 			},
 			Rules: []v1beta1.IngressRule{
 				{
-					Host: util.IngressHostName(atlasMap),
+					Host: util.GetIngressHostNameFor(atlasMap),
 				},
 			},
 		},
@@ -73,7 +73,7 @@ func createIngress(atlasMap *v1alpha1.AtlasMap) *v1beta1.Ingress {
 
 func reconcileIngress(ingress *v1beta1.Ingress, atlasMap *v1alpha1.AtlasMap, client client.Client, ctx context.Context) error {
 	if len(ingress.Spec.Rules) == 1 {
-		host := util.IngressHostName(atlasMap)
+		host := util.GetIngressHostNameFor(atlasMap)
 		if host != ingress.Spec.Rules[0].Host {
 			ingress.Spec.Rules[0].Host = host
 			if err := client.Update(ctx, ingress); err != nil {
