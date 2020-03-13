@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	atlasMapVersionAnnotation = "atlasmap.io/atlasmap.version"
+	atlasMapVersionAnnotation = "atlasmap.io/atlasmap.resource.version"
 	portAtlasMap              = 8585
 	portJolokia               = 8778
 	portPrometheus            = 9779
@@ -156,31 +156,37 @@ func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap, probePath string) *ap
 }
 
 func reconcileReplicas(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, ctx context.Context, action *deploymentAction) error {
-	// Reconcile Deployment.Spec.Replicas replicas to AtlasMap.Spec.Replicas
 	if annotations := deployment.GetAnnotations(); annotations != nil && annotations[atlasMapVersionAnnotation] == atlasMap.GetResourceVersion() {
+		// Reconcile Deployment.Spec.Replicas replicas to AtlasMap.Spec.Replicas
 		if replicas := deployment.Spec.Replicas; atlasMap.Spec.Replicas != *replicas {
 			atlasMap.Spec.Replicas = *replicas
-			action.updatePhase(ctx, atlasMap, v1alpha1.AtlasMapPhasePhaseInitializing)
 			if err := action.client.Update(ctx, atlasMap); err != nil {
+				return err
+			}
+		}
+	} else {
+		// Reconcile AtlasMap.Spec.Replicas to Deployment.Spec.Replicas
+		if replicas := atlasMap.Spec.Replicas; *deployment.Spec.Replicas != replicas {
+			deployment.Annotations[atlasMapVersionAnnotation] = atlasMap.GetResourceVersion()
+			deployment.Spec.Replicas = &replicas
+			if err := action.client.Update(ctx, deployment); err != nil {
 				return err
 			}
 		}
 	}
 
-	// Reconcile AtlasMap.Spec.Replicas to Deployment.Spec.Replicas
-	if replicas := atlasMap.Spec.Replicas; *deployment.Spec.Replicas != replicas {
-		deployment.Annotations[atlasMapVersionAnnotation] = atlasMap.GetResourceVersion()
-		deployment.Spec.Replicas = &replicas
-		action.updatePhase(ctx, atlasMap, v1alpha1.AtlasMapPhasePhaseInitializing)
-		if err := action.client.Update(ctx, deployment); err != nil {
-			return err
-		}
+	// Update AtlasMap status phase
+	updatedDeployment, err := getAtlasMapDeployment(action, ctx, atlasMap)
+	if err != nil {
+		return err
 	}
 
-	if deployment.Status.Replicas != deployment.Status.ReadyReplicas {
-		action.updatePhase(ctx, atlasMap, v1alpha1.AtlasMapPhasePhaseInitializing)
-	} else {
+	if *updatedDeployment.Spec.Replicas == 0 && updatedDeployment.Status.ReadyReplicas == 0 {
+		action.updatePhase(ctx, atlasMap, v1alpha1.AtlasMapPhasePhaseUndeployed)
+	} else if *updatedDeployment.Spec.Replicas > 0 && updatedDeployment.Status.ReadyReplicas > 0 {
 		action.updatePhase(ctx, atlasMap, v1alpha1.AtlasMapPhasePhaseDeployed)
+	} else {
+		action.updatePhase(ctx, atlasMap, v1alpha1.AtlasMapPhasePhaseDeploying)
 	}
 
 	return nil

@@ -35,7 +35,7 @@ func (action *ingressAction) handle(ctx context.Context, atlasMap *v1alpha1.Atla
 		if err := action.deployResource(ctx, atlasMap, ingress); err != nil {
 			return err
 		}
-	} else if err != nil && ingress != nil {
+	} else if err == nil && ingress != nil {
 		if err := reconcileIngress(ingress, atlasMap, action.client, ctx); err != nil {
 			return err
 		}

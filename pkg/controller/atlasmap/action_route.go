@@ -7,7 +7,6 @@ import (
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/go-logr/logr"
 	routev1 "github.com/openshift/api/route/v1"
-	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -66,35 +65,11 @@ func reconcileRoute(atlasMap *v1alpha1.AtlasMap, route *routev1.Route, client cl
 	return nil
 }
 
-func createAtlasMapService(atlasMap *v1alpha1.AtlasMap) *corev1.Service {
-	return &corev1.Service{
-		TypeMeta: v1.TypeMeta{
-			APIVersion: "v1",
-			Kind:       "Service",
-		},
-		ObjectMeta: v1.ObjectMeta{
-			Name:      atlasMap.ObjectMeta.Name,
-			Namespace: atlasMap.ObjectMeta.Namespace,
-			Labels:    atlasMapLabels(atlasMap),
-		},
-		Spec: corev1.ServiceSpec{
-			Type:     corev1.ServiceTypeClusterIP,
-			Selector: atlasMapLabels(atlasMap),
-			Ports: []corev1.ServicePort{
-				{
-					Name: "http",
-					Port: portAtlasMap,
-				},
-			},
-		},
-	}
-}
-
 func createAtlasMapRoute(atlasMap *v1alpha1.AtlasMap) *routev1.Route {
 	return &routev1.Route{
 		TypeMeta: v1.TypeMeta{
 			Kind:       "Route",
-			APIVersion: routev1.SchemeGroupVersion.String(),
+			APIVersion: routev1.GroupVersion.String(),
 		},
 		ObjectMeta: v1.ObjectMeta{
 			Name:      atlasMap.Name,

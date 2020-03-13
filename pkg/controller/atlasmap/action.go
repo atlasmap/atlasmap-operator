@@ -73,6 +73,7 @@ func (action *baseAction) deployResource(ctx context.Context, atlasMap *v1alpha1
 
 func (action *baseAction) updatePhase(ctx context.Context, atlasMap *v1alpha1.AtlasMap, phase v1alpha1.AtlasMapPhase) {
 	if atlasMap.Status.Phase != phase {
+		action.log.Info("AtlasMap phase change", "from", atlasMap.Status.Phase, "to", phase)
 		atlasMap.Status.Phase = phase
 		if err := action.client.Status().Update(ctx, atlasMap); err != nil {
 			action.log.Error(err, "Error updating AtlasMap status", "phase", phase)

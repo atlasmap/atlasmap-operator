@@ -71,8 +71,10 @@ type AtlasMapList struct {
 type AtlasMapPhase string
 
 const (
-	// AtlasMapPhasePhaseInitializing --
-	AtlasMapPhasePhaseInitializing AtlasMapPhase = "Initializing"
+	// AtlasMapPhasePhaseUndeployed --
+	AtlasMapPhasePhaseUndeployed AtlasMapPhase = "Undeployed"
+	// AtlasMapPhasePhaseDeploying --
+	AtlasMapPhasePhaseDeploying AtlasMapPhase = "Deploying"
 	// AtlasMapPhasePhaseDeployed --
 	AtlasMapPhasePhaseDeployed AtlasMapPhase = "Deployed"
 )
