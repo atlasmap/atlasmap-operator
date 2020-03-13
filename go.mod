@@ -20,7 +20,11 @@ require (
 	sigs.k8s.io/controller-runtime v0.4.0
 )
 
-require github.com/operator-framework/operator-sdk v0.15.1
+require (
+	github.com/Masterminds/semver v1.5.0
+	github.com/openshift/client-go v0.0.0-20190923180330-3b6373338c9b
+	github.com/operator-framework/operator-sdk v0.15.1
+)
 
 // Pinned to kubernetes-1.16.2
 replace (
@@ -49,4 +53,8 @@ replace (
 
 replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309 // Required by Helm
 
-replace github.com/openshift/api => github.com/openshift/api v0.0.0-20190924102528-32369d4db2ad // Required until https://github.com/operator-framework/operator-lifecycle-manager/pull/1241 is resolved
+//Openshift release-4.3
+replace (
+	github.com/openshift/api => github.com/openshift/api v0.0.0-20200205145930-e9d93e317dd1
+	github.com/openshift/client-go => github.com/openshift/client-go v0.0.0-20191125132246-f6563a70e19a
+)
