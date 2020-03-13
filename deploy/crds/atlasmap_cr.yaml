@@ -7,8 +7,9 @@ spec:
   replicas: 1
 
   # The version of the AtlasMap to use. The default is 'latest'.
-  # The default image name and tag can be overridden by providing arguments to the AtlasMap operator deployment spec
+  # The default image name and tag can be overridden by providing arguments to the AtlasMap operator container
   # E.g: --atlasmap-image-name=docker.io/custom-namespace/custom-image --atlasmap-image-version=1.2.3
+  # Or through environment variables ATLASMAP_IMAGE_NAME & ATLASMAP_IMAGE_VERSION
   # version: latest
 
   # The host name to use for the OpenShift route or Kubernetes Ingress. If not specified, this is generated automatically

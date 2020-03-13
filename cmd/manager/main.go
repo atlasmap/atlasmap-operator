@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"os"
 	"runtime"
 
@@ -47,9 +48,12 @@ func printVersion() {
 }
 
 func init() {
+	imageName := util.GetEnvVar("ATLASMAP_IMAGE_NAME", atlasmapconfig.DefaultConfiguration.AtlasMapImage)
+	imageVersion := util.GetEnvVar("ATLASMAP_IMAGE_VERSION", atlasmapconfig.DefaultConfiguration.Version)
+
 	flagset := flag.CommandLine
-	flagset.StringVar(&atlasmapconfig.DefaultConfiguration.AtlasMapImage, "atlasmap-image-name", atlasmapconfig.DefaultConfiguration.AtlasMapImage, "AtlasMap container image name")
-	flagset.StringVar(&atlasmapconfig.DefaultConfiguration.Version, "atlasmap-image-version", atlasmapconfig.DefaultConfiguration.Version, "AtlasMap container image version")
+	flagset.StringVar(&atlasmapconfig.DefaultConfiguration.AtlasMapImage, "atlasmap-image-name", imageName, "AtlasMap container image name")
+	flagset.StringVar(&atlasmapconfig.DefaultConfiguration.Version, "atlasmap-image-version", imageVersion, "AtlasMap container image version")
 	flagset.Parse(os.Args[1:])
 }
 

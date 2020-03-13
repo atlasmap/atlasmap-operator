@@ -6,6 +6,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
+	"os"
 )
 
 // IsOpenShift returns true if the platform cluster is OpenShift
@@ -37,4 +38,13 @@ func GetIngressHostNameFor(atlasMap *v1alpha1.AtlasMap) string {
 // ImageName generates a container image name from the given name and tag
 func ImageName(image string, tag string) string {
 	return fmt.Sprintf("%s:%s", image, tag)
+}
+
+// GetEnvVar gets the value of the given environment variable or returns a default value if it does not exist
+func GetEnvVar(name string, defaultValue string) string {
+	value, exists := os.LookupEnv(name)
+	if exists {
+		return value
+	}
+	return defaultValue
 }
