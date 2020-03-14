@@ -1,17 +1,19 @@
 ATLASMAP_IMAGE=docker.io/atlasmap/atlasmap
 ATLASMAP_IMAGE_TAG=latest
+GIT_COMMIT=$(shell git rev-parse --short HEAD || echo 'Unknown')
 NAMESPACE ?= atlasmap
 OPERATOR_SDK_VERSION=v0.15.1
 ORG = atlasmap
 PROJECT = atlasmap-operator
 QUAY_NAMESPACE ?= atlasmap
 QUAY_REPOSITORY ?= atlasmap-operator
+ROOT_PACKAGE := $(shell go list ./version)
 TAG = latest
 VERSION = $(shell grep Version version/version.go | cut -d \" -f2)
 
 .PHONY: compile
 compile:
-	go build -o=atlasmap-operator ./cmd/manager/main.go
+	go build -ldflags "-X $(ROOT_PACKAGE).GitCommit=$(GIT_COMMIT)" -o=atlasmap-operator ./cmd/manager/main.go
 
 .PHONY: generate
 generate:
@@ -21,6 +23,10 @@ generate:
 .PHONY: generate-config
 generate-config:
 	build/scripts/generate-source.sh $(ATLASMAP_IMAGE) $(ATLASMAP_IMAGE_TAG)
+
+.PHONY: generate-csv
+generate-csv:
+	operator-sdk generate csv --csv-version $(VERSION) --update-crds --from-version $(shell cat deploy/olm-catalog/atlasmap-operator/atlasmap-operator.package.yaml | grep currentCSV | cut -f2 -d'v')
 
 .PHONY: build
 build: generate-config

@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
+	"github.com/atlasmap/atlasmap-operator/version"
 	"os"
 	"runtime"
 
@@ -38,13 +39,16 @@ var (
 	metricsPort         int32 = 8383
 	operatorMetricsPort int32 = 8686
 )
+
 var log = logf.Log.WithName("cmd")
 
 func printVersion() {
 	log.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
 	log.Info(fmt.Sprintf("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH))
-	log.Info(fmt.Sprintf("Version of operator-sdk: %v", sdkVersion.Version))
-	log.Info(fmt.Sprintf("AtlasMap default image: %s", atlasmapconfig.DefaultConfiguration.GetAtlasMapImage()))
+	log.Info(fmt.Sprintf("Operator SDK Version: %v", sdkVersion.Version))
+	log.Info(fmt.Sprintf("AtlasMap Operator Version: %s", version.Version))
+	log.Info(fmt.Sprintf("AtlasMap Operator Git Commit: %s", version.GitCommit))
+	log.Info(fmt.Sprintf("AtlasMap Default Image: %s", atlasmapconfig.DefaultConfiguration.GetAtlasMapImage()))
 }
 
 func init() {
