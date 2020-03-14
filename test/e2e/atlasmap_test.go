@@ -14,9 +14,11 @@
 package e2e
 
 import (
+	"bytes"
 	goctx "context"
 	"fmt"
 	"github.com/atlasmap/atlasmap-operator/pkg/config"
+	"io"
 	"testing"
 	"time"
 
@@ -352,7 +354,41 @@ func AtlasMapCluster(t *testing.T) {
 	// run tests
 	for _, test := range tests {
 		if err = test(t, f, ctx); err != nil {
+			logs := operatorLogs(f)
+			if len(logs) > 0 {
+				t.Log("========== AtlasMap Operator Logs ===========")
+				t.Log(logs)
+				t.Log("=============================================")
+			}
+			t.Log("============== Tests Failed =================")
 			t.Fatal(err)
 		}
 	}
+}
+
+func operatorLogs(f *framework.Framework) string {
+	podListOptions := metav1.ListOptions{
+		LabelSelector: "name = atlasmap-operator",
+	}
+	podList, err := f.KubeClient.CoreV1().Pods(f.Namespace).List(podListOptions)
+	if err != nil || len(podList.Items) == 0 {
+		return ""
+	}
+
+	podLogOptions := v1.PodLogOptions{}
+	req := f.KubeClient.CoreV1().Pods(f.Namespace).GetLogs(podList.Items[0].Name, &podLogOptions)
+	podLogs, err := req.Stream()
+	if err != nil {
+		return ""
+	}
+	defer podLogs.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = io.Copy(buf, podLogs)
+	if err != nil {
+		return ""
+	}
+	str := buf.String()
+
+	return str
 }
