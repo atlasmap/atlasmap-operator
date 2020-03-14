@@ -1,0 +1,10 @@
+scorecard:
+  plugins:
+    - basic:
+        cr-manifest:
+          - "deploy/crds/atlasmap_cr.yaml"
+        csv-path: "deploy/olm-catalog/atlasmap-operator/0.2.0/atlasmap-operator.v0.2.0.clusterserviceversion.yaml"
+    - olm:
+        cr-manifest:
+          - "deploy/crds/atlasmap_cr.yaml"
+        csv-path: "deploy/olm-catalog/atlasmap-operator/0.2.0/atlasmap-operator.v0.2.0.clusterserviceversion.yaml"

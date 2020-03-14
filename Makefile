@@ -71,9 +71,7 @@ run:
 
 .PHONY: scorecard
 scorecard:
-	operator-sdk scorecard \
-		--cr-manifest=deploy/crds/atlasmap.io_atlasmaps_crd.yaml \
-		--csv-path deploy/olm-catalog/atlasmap-operator/$(VERSION)/atlasmap-operator.v$(VERSION).clusterserviceversion.yaml
+	operator-sdk scorecard
 
 .PHONY: install-operator-sdk
 install-operator-sdk:

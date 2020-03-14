@@ -20,7 +20,10 @@ require (
 	sigs.k8s.io/controller-runtime v0.4.0
 )
 
-require github.com/operator-framework/operator-sdk v0.15.1
+require (
+	github.com/magiconair/properties v1.8.1
+	github.com/operator-framework/operator-sdk v0.15.1
+)
 
 // Pinned to kubernetes-1.16.2
 replace (
