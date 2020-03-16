@@ -30,7 +30,7 @@ generate-csv:
 
 .PHONY: build
 build: generate-config
-	operator-sdk build docker.io/${ORG}/${PROJECT}:${TAG}
+	operator-sdk build --go-build-args "-ldflags -X=$(ROOT_PACKAGE).GitCommit=$(GIT_COMMIT)" docker.io/${ORG}/${PROJECT}:${TAG}
 
 .PHONY: image
 image: compile build
