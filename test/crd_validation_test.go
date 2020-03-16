@@ -5,13 +5,12 @@ import (
 	"github.com/RHsyseng/operator-utils/pkg/validation"
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/ghodss/yaml"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSampleCustomResources(t *testing.T) {

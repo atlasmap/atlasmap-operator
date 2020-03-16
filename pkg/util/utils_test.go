@@ -2,7 +2,7 @@ package util
 
 import (
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
-	"github.com/magiconair/properties/assert"
+	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
 	"testing"
