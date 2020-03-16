@@ -62,7 +62,7 @@ test-local:
 
 .PHONY: test
 test:
-	go test -v ./test
+	go test -v $(shell go list ./... | grep -v e2e)
 	operator-sdk test local ./test/e2e --go-test-flags "-v" --namespace ${NAMESPACE}
 
 .PHONY: run
