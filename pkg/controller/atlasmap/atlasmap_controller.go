@@ -253,7 +253,7 @@ func (r *ReconcileAtlasMap) CreateConsoleLink(request reconcile.Request, err err
 		}
 	}
 
-	consoleLink = util.CreateNamespaceDashboardLinK(consoleLinkName, request.Namespace, route)
+	consoleLink = util.CreateNamespaceDashboardLink(consoleLinkName, request.Namespace, route)
 
 	if consoleLink.Spec.Location != "" {
 		err = r.client.Create(context.TODO(), consoleLink)

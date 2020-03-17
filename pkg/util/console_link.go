@@ -8,7 +8,7 @@ import (
 
 
 // creates a NamespaceDashboard ConsoleLink instance
-func CreateNamespaceDashboardLinK(name string, namespace string, route *routev1.Route) *consolev1.ConsoleLink {
+func CreateNamespaceDashboardLink(name string, namespace string, route *routev1.Route) *consolev1.ConsoleLink {
 	consoleLink := &consolev1.ConsoleLink{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:   name,
