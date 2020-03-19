@@ -1,6 +1,6 @@
 # AtlasMap Operator
 
-[![CircleCI](https://img.shields.io/circleci/project/github/atlasmap/atlasmap-operator/master.svg)](https://circleci.com/gh/atlasmap/atlasmap-operator)
+![build](https://github.com/atlasmap/atlasmap-operator/workflows/build/badge.svg?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/atlasmap/atlasmap-operator)](https://goreportcard.com/report/github.com/atlasmap/atlasmap-operator)
 [![license](https://img.shields.io/github/license/atlasmap/atlasmap-operator.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
