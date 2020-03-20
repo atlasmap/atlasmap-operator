@@ -2,6 +2,7 @@ package atlasmap
 
 import (
 	"context"
+
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"k8s.io/client-go/rest"
 
@@ -46,6 +47,7 @@ func newOperatorActions(log logr.Logger, mgr manager.Manager) []action {
 	return []action{
 		newServiceAction(log.WithValues("type", "service"), mgr),
 		routeAction,
+		newConsoleLinkAction(log.WithValues("type", "create-consolelink"), mgr),
 		newDeploymentAction(log.WithValues("type", "create-deployment"), mgr),
 	}
 }
@@ -80,4 +82,3 @@ func (action *baseAction) updatePhase(ctx context.Context, atlasMap *v1alpha1.At
 		}
 	}
 }
-

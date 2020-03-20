@@ -2,15 +2,10 @@ package atlasmap
 
 import (
 	"context"
-	"github.com/Masterminds/semver"
-	"github.com/go-logr/logr"
 	consolev1 "github.com/openshift/api/console/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
 	"reflect"
 
 	routev1 "github.com/openshift/api/route/v1"
-	configv1client "github.com/openshift/client-go/config/clientset/versioned"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
@@ -37,19 +32,12 @@ func Add(mgr manager.Manager) error {
 	if err != nil {
 		return err
 	}
+	return add(mgr, newReconciler(mgr))
+}
 
-	reconciler := &ReconcileAtlasMap{
-		client: mgr.GetClient(),
-		scheme: mgr.GetScheme(),
-	}
-	configClient, err := configv1client.NewForConfig(mgr.GetConfig())
-	if err != nil {
-		return err
-	}
-	reconciler.configClient = configClient
-
-	return add(mgr, reconciler)
-
+// newReconciler returns a new reconcile.Reconciler
+func newReconciler(mgr manager.Manager) reconcile.Reconciler {
+	return &ReconcileAtlasMap{client: mgr.GetClient(), scheme: mgr.GetScheme()}
 }
 
 var actions []action
@@ -105,8 +93,8 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 			return err
 		}
 
-		err = c.Watch(&source.Kind{Type: &consolev1.ConsoleLink{}},
-		&handler.EnqueueRequestForObject{})
+		//cluster-scoped
+		err = c.Watch(&source.Kind{Type: &consolev1.ConsoleLink{}}, &handler.EnqueueRequestForObject{})
 		if err != nil {
 			return err
 		}
@@ -135,7 +123,6 @@ type ReconcileAtlasMap struct {
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
 	scheme *runtime.Scheme
-	configClient *configv1client.Clientset
 }
 
 // Reconcile reads that state of the cluster for a AtlasMap object and makes changes based on the state read
@@ -173,94 +160,5 @@ func (r *ReconcileAtlasMap) Reconcile(request reconcile.Request) (reconcile.Resu
 		}
 	}
 
-	openShiftSemVer, err, result, done := r.getClusterVersionSemVer(err, reqLogger)
-	if done {
-		return result, err
-	}
-	constraint, _ := semver.NewConstraint(">= 4.3")
-	isOpenShift43Plus := constraint.Check(openShiftSemVer)
-
-
-	// Add link to OpenShift console
-	if isOpenShift43Plus {
-		route, reconcileResult, err, doneRoute := r.getRoute(err, request, reqLogger)
-		if doneRoute {
-			return reconcileResult, err
-		}
-
-		reconcileResult, err, done := r.CreateConsoleLink(request, err, reqLogger, route)
-		if done {
-			return reconcileResult, err
-		}
-	}
-
 	return reconcile.Result{}, nil
-}
-
-func (r *ReconcileAtlasMap) getClusterVersionSemVer(err error, reqLogger logr.Logger) (*semver.Version, error, reconcile.Result, bool) {
-	var openShiftSemVer *semver.Version
-	clusterVersion, err := r.configClient.
-		ConfigV1().
-		ClusterVersions().
-		Get("version", metav1.GetOptions{})
-
-	if err != nil {
-		if errors.IsNotFound(err) {
-			// default to OpenShift 3 as ClusterVersion API was introduced in OpenShift 4
-			openShiftSemVer, _ = semver.NewVersion("3")
-		} else {
-			reqLogger.Error(err, "Error reading cluster version")
-			return nil, err, reconcile.Result{}, true
-		}
-	} else {
-		//latest version from the history
-		v := clusterVersion.Status.History[0].Version
-		openShiftSemVer, err = semver.NewVersion(v)
-		if err != nil {
-			reqLogger.Error(err, "Error parsing cluster semantic version", "version", v)
-			return nil, err, reconcile.Result{}, true
-		}
-	}
-	return openShiftSemVer, err, reconcile.Result{}, false
-}
-
-func (r *ReconcileAtlasMap) getRoute(err error, request reconcile.Request, reqLogger logr.Logger) (*routev1.Route, reconcile.Result, error, bool) {
-	route := &routev1.Route{}
-	err = r.client.Get(context.TODO(), request.NamespacedName, route)
-	if err != nil && errors.IsNotFound(err) {
-		return nil, reconcile.Result{Requeue: true}, nil, true
-	} else if err != nil {
-		reqLogger.Error(err, "Failed to get route")
-		return nil, reconcile.Result{}, err, true
-	}
-	return route, reconcile.Result{}, err, false
-}
-
-func (r *ReconcileAtlasMap) CreateConsoleLink(request reconcile.Request, err error, reqLogger logr.Logger, route *routev1.Route) (reconcile.Result, error, bool) {
-	consoleLinkName := request.Name + "-" + request.Namespace
-	consoleLink := &consolev1.ConsoleLink{}
-	err = r.client.Get(context.TODO(), types.NamespacedName{Name: consoleLinkName}, consoleLink)
-	if err != nil {
-		if !errors.IsNotFound(err) {
-			reqLogger.Error(err, "Failed to get console link")
-			return reconcile.Result{}, err, true
-		}
-	} else {
-		err = r.client.Delete(context.TODO(), consoleLink)
-		if err != nil {
-			reqLogger.Error(err, "Failed to delete console link")
-			return reconcile.Result{}, err, true
-		}
-	}
-
-	consoleLink = util.CreateNamespaceDashboardLink(consoleLinkName, request.Namespace, route)
-
-	if consoleLink.Spec.Location != "" {
-		err = r.client.Create(context.TODO(), consoleLink)
-		if err != nil {
-			reqLogger.Error(err, "Failed to create console link", "name", consoleLink.Name)
-			return reconcile.Result{}, err, true
-		}
-	}
-	return reconcile.Result{}, nil, false
 }

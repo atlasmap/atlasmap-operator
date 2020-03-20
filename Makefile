@@ -40,6 +40,8 @@ install: install-crds
 	kubectl apply -f deploy/service_account.yaml -n ${NAMESPACE}
 	kubectl apply -f deploy/role.yaml -n ${NAMESPACE}
 	kubectl apply -f deploy/role_binding.yaml -n ${NAMESPACE}
+	kubectl apply -f deploy/cluster_role.yaml
+	kubectl apply -f deploy/cluster_role_binding.yaml
 
 .PHONY: install-crds
 install-crds:
@@ -51,6 +53,8 @@ uninstall:
 	kubectl delete -f deploy/service_account.yaml -n ${NAMESPACE}
 	kubectl delete -f deploy/role.yaml -n ${NAMESPACE}
 	kubectl delete -f deploy/role_binding.yaml -n ${NAMESPACE}
+	kubectl delete -f deploy/cluster_role.yaml
+	kubectl delete -f deploy/cluster_role_binding.yaml
 
 .PHONY: deploy
 deploy:
