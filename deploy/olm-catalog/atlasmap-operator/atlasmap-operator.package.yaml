@@ -1,5 +1,5 @@
 channels:
 - currentCSV: atlasmap-operator.v0.2.0
   name: alpha
-defaultChannel: ""
+defaultChannel: alpha
 packageName: atlasmap-operator
