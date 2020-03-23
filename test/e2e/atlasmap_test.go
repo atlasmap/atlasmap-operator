@@ -17,11 +17,13 @@ import (
 	"bytes"
 	goctx "context"
 	"fmt"
-	"github.com/atlasmap/atlasmap-operator/pkg/config"
 	"io"
 	"testing"
 	"time"
 
+	"github.com/atlasmap/atlasmap-operator/pkg/config"
+
+	consolev1 "github.com/openshift/api/console/v1"
 	routev1 "github.com/openshift/api/route/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -113,6 +115,36 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 		}
 		scheme = "https"
 		host = atlasMapRoute.Spec.Host
+
+		//verify Console Link NamespaceDashboard
+		exampleConsoleLink := &consolev1.ConsoleLink{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:   crName,
+				Labels: map[string]string{"app": crName},
+			},
+			Spec: consolev1.ConsoleLinkSpec{
+				Location: consolev1.NamespaceDashboard,
+				NamespaceDashboard: &consolev1.NamespaceDashboardSpec{
+					Namespaces: []string{namespace},
+				},
+			},
+		}
+		exampleConsoleLink.Spec.Link.Text = "atlasmap"
+		exampleConsoleLink.Spec.Link.Href = "https://" + atlasMapRoute.Spec.Host
+
+		if err := f.Client.Create(goctx.TODO(), exampleConsoleLink, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
+			return err
+		}
+
+		consoleLink := &consolev1.ConsoleLink{}
+		if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, consoleLink); err != nil {
+			return err
+		}
+
+		if consoleLink.Spec.Href != exampleConsoleLink.Spec.Href {
+			return fmt.Errorf("Expected ConsoleLink href to match %s but got %s", exampleConsoleLink.Spec.Href, consoleLink.Spec.Href)
+		}
+
 	} else {
 		// Verify ingress was created
 		atlasMapIngress := &v1beta1.Ingress{}
@@ -207,7 +239,7 @@ func atlasMapImageNameTest(t *testing.T, f *framework.Framework, ctx *framework.
 	}
 
 	crName := "test-atlasmap-custom-image"
-	imageName := "docker.io/atlasmap/atlasmap:1.43"
+	imageName := "docker.io/atlasmap/atlasmap:latest"
 
 	exampleAtlasMap := &v1alpha1.AtlasMap{
 		ObjectMeta: metav1.ObjectMeta{
@@ -335,6 +367,7 @@ func AtlasMapCluster(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	consolev1.Install(framework.Global.Scheme)
 
 	if !f.LocalOperator {
 		if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "atlasmap-operator", 1, retryInterval, timeout); err != nil {
