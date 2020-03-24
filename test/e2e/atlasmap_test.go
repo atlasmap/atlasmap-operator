@@ -130,7 +130,7 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 			},
 		}
 		exampleConsoleLink.Spec.Link.Text = "atlasmap"
-		exampleConsoleLink.Spec.Link.Href = "https://" + atlasMapRoute.Spec.Host
+		exampleConsoleLink.Spec.Link.Href = "https://" + host
 
 		if err := f.Client.Create(goctx.TODO(), exampleConsoleLink, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
 			return err
@@ -367,7 +367,10 @@ func AtlasMapCluster(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	consolev1.Install(framework.Global.Scheme)
+	err = consolev1.Install(framework.Global.Scheme)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if !f.LocalOperator {
 		if err := e2eutil.WaitForDeployment(t, f.KubeClient, namespace, "atlasmap-operator", 1, retryInterval, timeout); err != nil {
