@@ -92,13 +92,6 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		if err != nil {
 			return err
 		}
-
-		//cluster-scoped
-		err = c.Watch(&source.Kind{Type: &consolev1.ConsoleLink{}}, &handler.EnqueueRequestForObject{})
-		if err != nil {
-			return err
-		}
-
 	} else {
 		// Watch for changes to secondary resource ingress and requeue the owner AtlasMap
 		err = c.Watch(&source.Kind{Type: &v1beta1.Ingress{}}, &handler.EnqueueRequestForOwner{
