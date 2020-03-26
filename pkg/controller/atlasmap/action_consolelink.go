@@ -4,6 +4,7 @@ import (
 	"context"
 	routev1 "github.com/openshift/api/route/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
@@ -13,6 +14,10 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
+)
+
+const (
+	consoleLinkFinalizer = "finalizer.console.openshift.io"
 )
 
 type consoleLinkAction struct {
@@ -57,13 +62,27 @@ func (action *consoleLinkAction) handle(ctx context.Context, atlasMap *v1alpha1.
 				err = action.client.Create(ctx, consoleLink)
 				if err != nil {
 					return err
+				} else if err == nil {
+					controllerutil.AddFinalizer(atlasMap, consoleLinkFinalizer)
+					action.client.Update(ctx, atlasMap)
 				}
 
 		} else if err == nil && consoleLink != nil {
+
+			if atlasMap.DeletionTimestamp != nil {
+				err = action.client.Delete(ctx, consoleLink)
+				if err ==  nil {
+					controllerutil.RemoveFinalizer(atlasMap, consoleLinkFinalizer)
+					action.client.Update(ctx, atlasMap)
+				}
+			}
+
 			if err := reconcileConsoleLink(route, consoleLink, action.client, ctx); err != nil {
 				return err
 			}
 		}
+
+
 
 	}
 
