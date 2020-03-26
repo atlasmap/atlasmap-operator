@@ -5,22 +5,24 @@ go 1.13
 require (
 	cloud.google.com/go v0.40.0 // indirect
 	github.com/Azure/go-autorest/autorest v0.10.0 // indirect
-	github.com/RHsyseng/operator-utils v0.0.0-20190625182225-232650febd72
+	github.com/RHsyseng/operator-utils v0.0.0-20200318230845-8e48081eaa5a
 	github.com/ghodss/yaml v1.0.1-0.20190212211648-25d852aebe32
 	github.com/go-logr/logr v0.1.0
-	github.com/go-openapi/runtime v0.19.2 // indirect
-	github.com/go-openapi/spec v0.19.4
+	github.com/go-openapi/spec v0.19.6
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.4.0
-	k8s.io/api v0.0.0
-	k8s.io/apimachinery v0.0.0
+	k8s.io/api v0.17.2
+	k8s.io/apimachinery v0.17.2
 	k8s.io/client-go v12.0.0+incompatible
 	k8s.io/kube-openapi v0.0.0-20190918143330-0270cf2f1c1d
 	sigs.k8s.io/controller-runtime v0.4.0
 )
 
-require github.com/operator-framework/operator-sdk v0.15.1
+require (
+	github.com/gobuffalo/packr/v2 v2.7.1
+	github.com/operator-framework/operator-sdk v0.15.1
+)
 
 // Pinned to kubernetes-1.16.2
 replace (
@@ -49,4 +51,4 @@ replace (
 
 replace github.com/docker/docker => github.com/moby/moby v0.7.3-0.20190826074503-38ab9da00309 // Required by Helm
 
-replace github.com/openshift/api => github.com/openshift/api v0.0.0-20190924102528-32369d4db2ad // Required until https://github.com/operator-framework/operator-lifecycle-manager/pull/1241 is resolved
+replace github.com/openshift/api => github.com/openshift/api v0.0.0-20200205145930-e9d93e317dd1

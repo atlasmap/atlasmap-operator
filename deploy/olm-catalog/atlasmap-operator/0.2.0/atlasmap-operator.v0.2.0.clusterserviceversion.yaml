@@ -104,6 +104,18 @@ spec:
     mediatype: image/png
   install:
     spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+            - console.openshift.io
+          resources:
+            - consoleyamlsamples
+          verbs:
+            - get
+            - create
+            - update
+            - delete
+        serviceAccountName: atlasmap-operator
       deployments:
       - name: atlasmap-operator
         spec:

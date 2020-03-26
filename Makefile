@@ -28,8 +28,12 @@ generate-config:
 generate-csv:
 	operator-sdk generate csv --csv-version $(VERSION) --update-crds --from-version $(shell cat deploy/olm-catalog/atlasmap-operator/atlasmap-operator.package.yaml | grep currentCSV | cut -f2 -d'v')
 
+.PHONY: go-generate
+go-generate:
+	go generate ./...
+
 .PHONY: build
-build: generate-config
+build: generate-config go-generate
 	operator-sdk build --go-build-args "-ldflags -X=$(ROOT_PACKAGE).GitCommit=$(GIT_COMMIT)" docker.io/${ORG}/${PROJECT}:${TAG}
 
 .PHONY: image
