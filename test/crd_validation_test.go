@@ -16,7 +16,7 @@ import (
 func TestSampleCustomResources(t *testing.T) {
 	root := "./../deploy/crds"
 	crdCrMap := map[string]string{
-		"atlasmap.io_atlasmaps_crd.yaml": "atlasmap_v1alpha1_atlasmap_cr",
+		"atlasmaps.atlasmap.io.crd.yaml": "atlasmap_v1alpha1_atlasmap_cr",
 	}
 	for crd, prefix := range crdCrMap {
 		validateCustomResources(t, root, crd, prefix)
@@ -47,7 +47,7 @@ func validateCustomResources(t *testing.T, root string, crd string, prefix strin
 func TestCompleteCRD(t *testing.T) {
 	root := "./../deploy/crds"
 	crdStructMap := map[string]interface{}{
-		"atlasmap.io_atlasmaps_crd.yaml": &v1alpha1.AtlasMap{},
+		"atlasmaps.atlasmap.io.crd.yaml": &v1alpha1.AtlasMap{},
 	}
 	for crd, obj := range crdStructMap {
 		schema := getSchema(t, fmt.Sprintf("%s/%s", root, crd))

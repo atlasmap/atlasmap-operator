@@ -47,7 +47,7 @@ install-crds:
 
 .PHONY: uninstall
 uninstall:
-	kubectl delete -f deploy/crds/atlasmap.io_atlasmaps_crd.yaml
+	kubectl delete -f deploy/crds/atlasmaps.atlasmap.io.crd.yaml
 	kubectl delete -f deploy/service_account.yaml -n ${NAMESPACE}
 	kubectl delete -f deploy/role.yaml -n ${NAMESPACE}
 	kubectl delete -f deploy/role_binding.yaml -n ${NAMESPACE}
