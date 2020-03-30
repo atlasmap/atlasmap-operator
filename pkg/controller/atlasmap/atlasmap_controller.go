@@ -3,10 +3,11 @@ package atlasmap
 import (
 	"context"
 	consolev1 "github.com/openshift/api/console/v1"
+	"k8s.io/client-go/rest"
 	"reflect"
 
 	routev1 "github.com/openshift/api/route/v1"
-
+	configv1client "github.com/openshift/client-go/config/clientset/versioned"
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	appsv1 "k8s.io/api/apps/v1"
@@ -32,12 +33,19 @@ func Add(mgr manager.Manager) error {
 	if err != nil {
 		return err
 	}
-	return add(mgr, newReconciler(mgr))
-}
 
-// newReconciler returns a new reconcile.Reconciler
-func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileAtlasMap{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	newReconciler := &ReconcileAtlasMap{
+		client: mgr.GetClient(),
+		config: mgr.GetConfig(),
+		scheme: mgr.GetScheme(),
+	}
+
+	configClient, err := configv1client.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		return err
+	}
+	newReconciler.configClient = configClient
+	return add(mgr, newReconciler)
 }
 
 var actions []action
@@ -116,6 +124,8 @@ type ReconcileAtlasMap struct {
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
 	scheme *runtime.Scheme
+	config *rest.Config
+	configClient *configv1client.Clientset
 }
 
 // Reconcile reads that state of the cluster for a AtlasMap object and makes changes based on the state read

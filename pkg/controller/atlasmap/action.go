@@ -2,7 +2,7 @@ package atlasmap
 
 import (
 	"context"
-
+	"github.com/Masterminds/semver"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"k8s.io/client-go/rest"
 
@@ -37,6 +37,18 @@ func newOperatorActions(log logr.Logger, mgr manager.Manager) []action {
 		log.Error(err, "Failed to determine cluster version. Defaulting to Kubernetes mode.")
 	}
 
+	var consoleLink action
+	if isOpenShift {
+		openShiftSemVer := util.GetClusterVersionSemVer(mgr.GetConfig())
+		constraint43, _ := semver.NewConstraint(">= 4.3")
+		isOpenShift43Plus := constraint43.Check(openShiftSemVer)
+
+		if isOpenShift43Plus {
+			consoleLink = newConsoleLinkAction(log.WithValues("type", "create-consolelink"), mgr)
+		}
+
+	}
+
 	var routeAction action
 	if isOpenShift {
 		routeAction = newRouteAction(log.WithValues("type", "create-route"), mgr)
@@ -47,7 +59,7 @@ func newOperatorActions(log logr.Logger, mgr manager.Manager) []action {
 	return []action{
 		newServiceAction(log.WithValues("type", "service"), mgr),
 		routeAction,
-		newConsoleLinkAction(log.WithValues("type", "create-consolelink"), mgr),
+		consoleLink,
 		newDeploymentAction(log.WithValues("type", "create-deployment"), mgr),
 	}
 }

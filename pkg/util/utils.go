@@ -2,8 +2,11 @@ package util
 
 import (
 	"fmt"
+	"github.com/Masterminds/semver"
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
+	configv1client "github.com/openshift/client-go/config/clientset/versioned"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
 	"os"
@@ -47,4 +50,31 @@ func GetEnvVar(name string, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func GetClusterVersionSemVer(config *rest.Config) *semver.Version {
+	configClient, err := configv1client.NewForConfig(config)
+
+	var openShiftSemVer *semver.Version
+	clusterVersion, err := configClient.
+		ConfigV1().
+		ClusterVersions().
+		Get("version", metav1.GetOptions{})
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// default to OpenShift 3 as ClusterVersion API was introduced in OpenShift 4
+			openShiftSemVer, _ = semver.NewVersion("3")
+		} else {
+			return nil
+		}
+	} else {
+		//latest version from the history
+		v := clusterVersion.Status.History[0].Version
+		openShiftSemVer, err = semver.NewVersion(v)
+		if err != nil {
+			return nil
+		}
+	}
+	return openShiftSemVer
 }
