@@ -56,12 +56,17 @@ func newOperatorActions(log logr.Logger, mgr manager.Manager) []action {
 		routeAction = newIngressAction(log.WithValues("type", "create-ingress"), mgr)
 	}
 
-	return []action{
+	 actions := []action{
 		newServiceAction(log.WithValues("type", "service"), mgr),
 		routeAction,
-		consoleLink,
 		newDeploymentAction(log.WithValues("type", "create-deployment"), mgr),
+	 }
+
+	if consoleLink != nil {
+		actions = append(actions, consoleLink)
 	}
+
+	return actions
 }
 
 func newBaseAction(log logr.Logger, mgr manager.Manager, name string) baseAction {
