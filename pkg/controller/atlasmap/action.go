@@ -40,11 +40,13 @@ func newOperatorActions(log logr.Logger, mgr manager.Manager) []action {
 	var consoleLink action
 	if isOpenShift {
 		openShiftSemVer := util.GetClusterVersionSemVer(mgr.GetConfig())
-		constraint43, _ := semver.NewConstraint(">= 4.3")
-		isOpenShift43Plus := constraint43.Check(openShiftSemVer)
+		if openShiftSemVer != nil {
+			constraint43, _ := semver.NewConstraint(">= 4.3")
+			isOpenShift43Plus := constraint43.Check(openShiftSemVer)
 
-		if isOpenShift43Plus {
-			consoleLink = newConsoleLinkAction(log.WithValues("type", "create-consolelink"), mgr)
+			if isOpenShift43Plus {
+				consoleLink = newConsoleLinkAction(log.WithValues("type", "create-consolelink"), mgr)
+			}
 		}
 
 	}

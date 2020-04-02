@@ -119,37 +119,38 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 
 		//verify Console Link NamespaceDashboard
 		openShiftSemVer := util.GetClusterVersionSemVer(f.KubeConfig)
-		constraint43, _ := semver.NewConstraint(">= 4.3")
-		isOpenShift43Plus := constraint43.Check(openShiftSemVer)
+		if openShiftSemVer != nil {
+			constraint43, _ := semver.NewConstraint(">= 4.3")
+			isOpenShift43Plus := constraint43.Check(openShiftSemVer)
+			if isOpenShift43Plus {
 
-		if isOpenShift43Plus {
-
-			exampleConsoleLink := &consolev1.ConsoleLink{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:   crName,
-					Labels: map[string]string{"app": crName},
-				},
-				Spec: consolev1.ConsoleLinkSpec{
-					Location: consolev1.NamespaceDashboard,
-					NamespaceDashboard: &consolev1.NamespaceDashboardSpec{
-						Namespaces: []string{namespace},
+				exampleConsoleLink := &consolev1.ConsoleLink{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:   crName,
+						Labels: map[string]string{"app": crName},
 					},
-				},
-			}
-			exampleConsoleLink.Spec.Link.Text = "atlasmap"
-			exampleConsoleLink.Spec.Link.Href = "https://" + host
+					Spec: consolev1.ConsoleLinkSpec{
+						Location: consolev1.NamespaceDashboard,
+						NamespaceDashboard: &consolev1.NamespaceDashboardSpec{
+							Namespaces: []string{namespace},
+						},
+					},
+				}
+				exampleConsoleLink.Spec.Link.Text = "atlasmap"
+				exampleConsoleLink.Spec.Link.Href = "https://" + host
 
-			if err := f.Client.Create(goctx.TODO(), exampleConsoleLink, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
-				return err
-			}
+				if err := f.Client.Create(goctx.TODO(), exampleConsoleLink, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
+					return err
+				}
 
-			consoleLink := &consolev1.ConsoleLink{}
-			if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, consoleLink); err != nil {
-				return err
-			}
+				consoleLink := &consolev1.ConsoleLink{}
+				if err := f.Client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: namespace}, consoleLink); err != nil {
+					return err
+				}
 
-			if consoleLink.Spec.Href != exampleConsoleLink.Spec.Href {
-				return fmt.Errorf("Expected ConsoleLink href to match %s but got %s", exampleConsoleLink.Spec.Href, consoleLink.Spec.Href)
+				if consoleLink.Spec.Href != exampleConsoleLink.Spec.Href {
+					return fmt.Errorf("Expected ConsoleLink href to match %s but got %s", exampleConsoleLink.Spec.Href, consoleLink.Spec.Href)
+				}
 			}
 		}
 	} else {
