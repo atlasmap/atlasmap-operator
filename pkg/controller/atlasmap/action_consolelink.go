@@ -2,17 +2,15 @@ package atlasmap
 
 import (
 	"context"
-	routev1 "github.com/openshift/api/route/v1"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"github.com/go-logr/logr"
 	consolev1 "github.com/openshift/api/console/v1"
+	routev1 "github.com/openshift/api/route/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
@@ -62,9 +60,6 @@ func (action *consoleLinkAction) handle(ctx context.Context, atlasMap *v1alpha1.
 				err = action.client.Create(ctx, consoleLink)
 				if err != nil {
 					return err
-				} else if err == nil {
-					controllerutil.AddFinalizer(atlasMap, consoleLinkFinalizer)
-					action.client.Update(ctx, atlasMap)
 				}
 
 		} else if err == nil && consoleLink != nil {
@@ -72,8 +67,7 @@ func (action *consoleLinkAction) handle(ctx context.Context, atlasMap *v1alpha1.
 			if atlasMap.DeletionTimestamp != nil {
 				err = action.client.Delete(ctx, consoleLink)
 				if err ==  nil {
-					controllerutil.RemoveFinalizer(atlasMap, consoleLinkFinalizer)
-					action.client.Update(ctx, atlasMap)
+					action.log.Error(err, "Error deleting console link.")
 				}
 			}
 
@@ -81,9 +75,6 @@ func (action *consoleLinkAction) handle(ctx context.Context, atlasMap *v1alpha1.
 				return err
 			}
 		}
-
-
-
 	}
 
 	return nil
