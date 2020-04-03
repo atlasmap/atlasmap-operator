@@ -213,6 +213,21 @@ spec:
           - update
           - watch
         serviceAccountName: atlasmap-operator
+    clusterPermissions:
+      - rules:
+        - apiGroups:
+          - console.openshift.io
+          resources:
+          - consolelinks
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        serviceAccountName: atlasmap-operator
     strategy: deployment
   installModes:
   - supported: true

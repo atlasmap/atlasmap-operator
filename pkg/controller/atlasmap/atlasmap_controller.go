@@ -2,12 +2,16 @@ package atlasmap
 
 import (
 	"context"
+	consolev1 "github.com/openshift/api/console/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/client-go/rest"
 	"reflect"
-
-	routev1 "github.com/openshift/api/route/v1"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
+	routev1 "github.com/openshift/api/route/v1"
+	configv1client "github.com/openshift/client-go/config/clientset/versioned"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -27,12 +31,23 @@ import (
 // Add creates a new AtlasMap Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
 func Add(mgr manager.Manager) error {
-	return add(mgr, newReconciler(mgr))
-}
+	err := consolev1.Install(mgr.GetScheme())
+	if err != nil {
+		return err
+	}
 
-// newReconciler returns a new reconcile.Reconciler
-func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-	return &ReconcileAtlasMap{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+	newReconciler := &ReconcileAtlasMap{
+		client: mgr.GetClient(),
+		config: mgr.GetConfig(),
+		scheme: mgr.GetScheme(),
+	}
+
+	configClient, err := configv1client.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		return err
+	}
+	newReconciler.configClient = configClient
+	return add(mgr, newReconciler)
 }
 
 var actions []action
@@ -111,6 +126,8 @@ type ReconcileAtlasMap struct {
 	// that reads objects from the cache and writes to the apiserver
 	client client.Client
 	scheme *runtime.Scheme
+	config *rest.Config
+	configClient *configv1client.Clientset
 }
 
 // Reconcile reads that state of the cluster for a AtlasMap object and makes changes based on the state read
@@ -131,6 +148,13 @@ func (r *ReconcileAtlasMap) Reconcile(request reconcile.Request) (reconcile.Resu
 			// Request object not found, could have been deleted after reconcile request.
 			// Owned objects are automatically garbage collected. For additional cleanup logic use finalizers.
 			// Return and don't requeue
+			instance.ObjectMeta = metav1.ObjectMeta{
+				Name:      request.Name,
+				Namespace: request.Namespace,
+			}
+			//Handling removable of cluster-scope object.
+			r.removeConsoleLink(instance)
+
 			return reconcile.Result{}, nil
 		}
 		// Error reading the object - requeue the request.
@@ -149,4 +173,21 @@ func (r *ReconcileAtlasMap) Reconcile(request reconcile.Request) (reconcile.Resu
 	}
 
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileAtlasMap) removeConsoleLink(atlasMap *v1alpha1.AtlasMap) (request reconcile.Result, err error) {
+	consoleLinkName := atlasMap.Name + "-" + atlasMap.Namespace
+	consoleLink := &consolev1.ConsoleLink{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: consoleLinkName}, consoleLink)
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			return reconcile.Result{}, err
+		}
+	} else {
+		err = r.client.Delete(context.TODO(), consoleLink)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+	}
+	return reconcile.Result{}, err
 }
