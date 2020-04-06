@@ -25,6 +25,25 @@ func TestImageName(t *testing.T) {
 	assert.Equal(t, image, "docker.io/test/image:1.2.3")
 }
 
+func TestConsoleLinkName(t *testing.T) {
+	atlasMap := &v1alpha1.AtlasMap{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      "test-name",
+			Namespace: "test-namespace",
+		},
+	}
+	assert.Equal(t, "test-name-test-namespace", ConsoleLinkName(atlasMap))
+}
+
+func TestConsoleLinkText(t *testing.T) {
+	atlasMap := &v1alpha1.AtlasMap{
+		ObjectMeta: v1.ObjectMeta{
+			Name:      "test-name",
+		},
+	}
+	assert.Equal(t, "AtlasMap - Test Name", ConsoleLinkText(atlasMap))
+}
+
 func TestGetEnvVar(t *testing.T) {
 	varName := "TEST_VAR"
 	varValue := "test value"

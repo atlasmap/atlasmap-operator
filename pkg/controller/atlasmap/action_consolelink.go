@@ -14,10 +14,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
 
-const (
-	consoleLinkFinalizer = "finalizer.console.openshift.io"
-)
-
 type consoleLinkAction struct {
 	baseAction
 }
@@ -27,7 +23,86 @@ func newConsoleLinkAction(log logr.Logger, mgr manager.Manager) action {
 		newBaseAction(log, mgr, "ConsoleLink"),
 	}
 }
-func (action *consoleLinkAction) getRoute(ctx context.Context, atlasMap *v1alpha1.AtlasMap) (*routev1.Route, error) {
+
+func (action *consoleLinkAction) handle(ctx context.Context, atlasMap *v1alpha1.AtlasMap) error {
+	isOpenShift, err := util.IsOpenShift(action.config)
+	if err != nil {
+		return err
+	}
+
+	if isOpenShift {
+		route, err := action.getAtlasMapRoute(ctx, atlasMap)
+		if err != nil {
+			return err
+		}
+
+		consoleLinkName := util.ConsoleLinkName(atlasMap)
+		consoleLink := &consolev1.ConsoleLink{}
+		err = action.client.Get(ctx, types.NamespacedName{Name: consoleLinkName}, consoleLink)
+		if err != nil && errors.IsNotFound(err) {
+			consoleLink = createNamespaceDashboardLink(consoleLinkName, route, atlasMap)
+			if err := action.client.Create(ctx, consoleLink); err != nil {
+				return err
+			}
+		} else if err == nil && consoleLink != nil {
+			if atlasMap.DeletionTimestamp != nil {
+				if err := action.client.Delete(ctx, consoleLink); err != nil {
+					action.log.Error(err, "Error deleting console link.")
+				}
+			}
+
+			if err := reconcileConsoleLink(atlasMap, route, consoleLink, action.client, ctx); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func reconcileConsoleLink(atlasMap *v1alpha1.AtlasMap, route *routev1.Route, link *consolev1.ConsoleLink, client client.Client, ctx context.Context) error {
+	updateConsoleLink := false
+	url := "https://" + route.Spec.Host
+	if link.Spec.Href != url {
+		link.Spec.Href = url
+		updateConsoleLink = true
+	}
+
+	linkText := util.ConsoleLinkText(atlasMap)
+	if link.Spec.Text != linkText {
+		link.Spec.Text = linkText
+		updateConsoleLink = true
+	}
+
+	if updateConsoleLink {
+		if err := client.Update(ctx, link); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func createNamespaceDashboardLink(name string, route *routev1.Route, atlasMap *v1alpha1.AtlasMap) *consolev1.ConsoleLink {
+	return &consolev1.ConsoleLink{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   name,
+			Labels: atlasMapLabels(atlasMap),
+		},
+		Spec: consolev1.ConsoleLinkSpec{
+			Link: consolev1.Link{
+				Text: util.ConsoleLinkText(atlasMap),
+				Href: "https://" + route.Spec.Host,
+			},
+			Location: consolev1.NamespaceDashboard,
+			NamespaceDashboard: &consolev1.NamespaceDashboardSpec{
+				Namespaces: []string{atlasMap.Namespace},
+			},
+		},
+	}
+}
+
+func (action *consoleLinkAction) getAtlasMapRoute(ctx context.Context, atlasMap *v1alpha1.AtlasMap) (*routev1.Route, error) {
 	route := &routev1.Route{}
 	err := action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, route)
 	if err != nil && errors.IsNotFound(err) {
@@ -39,86 +114,18 @@ func (action *consoleLinkAction) getRoute(ctx context.Context, atlasMap *v1alpha
 	return route, err
 }
 
-func (action *consoleLinkAction) handle(ctx context.Context, atlasMap *v1alpha1.AtlasMap) error {
-	isOpenShift, err := util.IsOpenShift(action.config)
+func (action *consoleLinkAction) RemoveConsoleLink(atlasMap *v1alpha1.AtlasMap) error {
+	consoleLinkName := util.ConsoleLinkName(atlasMap)
+	consoleLink := &consolev1.ConsoleLink{}
+	err := action.client.Get(context.TODO(), types.NamespacedName{Name: consoleLinkName}, consoleLink)
 	if err != nil {
-		return err
-	}
-
-	if isOpenShift {
-
-		route, err := action.getRoute(ctx, atlasMap)
-		if err != nil {
+		if !errors.IsNotFound(err) {
 			return err
 		}
-
-		consoleLinkName := atlasMap.Name + "-" + atlasMap.Namespace
-		consoleLink := &consolev1.ConsoleLink{}
-		err = action.client.Get(ctx, types.NamespacedName{Name: consoleLinkName}, consoleLink)
-		if err != nil && errors.IsNotFound(err) {
-				consoleLink = createNamespaceDashboardLink(consoleLinkName, route, atlasMap)
-				err = action.client.Create(ctx, consoleLink)
-				if err != nil {
-					return err
-				}
-
-		} else if err == nil && consoleLink != nil {
-
-			if atlasMap.DeletionTimestamp != nil {
-				err = action.client.Delete(ctx, consoleLink)
-				if err ==  nil {
-					action.log.Error(err, "Error deleting console link.")
-				}
-			}
-
-			if err := reconcileConsoleLink(route, consoleLink, action.client, ctx); err != nil {
-				return err
-			}
+	} else {
+		if err := action.client.Delete(context.TODO(), consoleLink); err != nil {
+			return err
 		}
 	}
-
 	return nil
-}
-
-func reconcileConsoleLink(route *routev1.Route, link *consolev1.ConsoleLink, client client.Client, ctx context.Context) error {
-	url := "https://" + route.Spec.Host
-	if link.Spec.Href != url {
-		link.Spec.Href = url
-		if err := client.Update(ctx, link); err != nil {
-			return err
-		}
-	}
-
-	if link.Spec.Text != route.Name {
-		link.Spec.Text = route.Name
-		if err := client.Update(ctx, link); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func createNamespaceDashboardLink(name string, route *routev1.Route, atlasMap *v1alpha1.AtlasMap) *consolev1.ConsoleLink {
-	consoleLink := &consolev1.ConsoleLink{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:   name,
-			Labels: map[string]string{"app": atlasMap.Name},
-		},
-		Spec: consolev1.ConsoleLinkSpec{
-			Location: consolev1.NamespaceDashboard,
-			NamespaceDashboard: &consolev1.NamespaceDashboardSpec{
-				Namespaces: []string{atlasMap.Namespace},
-			},
-		},
-	}
-
-	setNamespaceDashboardLink(consoleLink, route)
-
-	return consoleLink
-}
-
-func setNamespaceDashboardLink(consoleLink *consolev1.ConsoleLink, route *routev1.Route) {
-	consoleLink.Spec.Link.Text = route.Name
-	consoleLink.Spec.Link.Href = "https://" + route.Spec.Host
 }

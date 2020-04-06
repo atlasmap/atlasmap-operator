@@ -152,8 +152,12 @@ func (r *ReconcileAtlasMap) Reconcile(request reconcile.Request) (reconcile.Resu
 				Name:      request.Name,
 				Namespace: request.Namespace,
 			}
-			//Handling removable of cluster-scope object.
-			r.removeConsoleLink(instance)
+
+			isOpenShift, _ := util.IsOpenShift(r.config)
+			if isOpenShift && util.IsOpenShift43Plus(r.config){
+				//Handle removal of cluster-scope object.
+				r.removeConsoleLink(instance)
+			}
 
 			return reconcile.Result{}, nil
 		}
@@ -176,7 +180,7 @@ func (r *ReconcileAtlasMap) Reconcile(request reconcile.Request) (reconcile.Resu
 }
 
 func (r *ReconcileAtlasMap) removeConsoleLink(atlasMap *v1alpha1.AtlasMap) (request reconcile.Result, err error) {
-	consoleLinkName := atlasMap.Name + "-" + atlasMap.Namespace
+	consoleLinkName := util.ConsoleLinkName(atlasMap)
 	consoleLink := &consolev1.ConsoleLink{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: consoleLinkName}, consoleLink)
 	if err != nil {

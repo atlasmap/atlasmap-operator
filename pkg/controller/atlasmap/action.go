@@ -2,7 +2,6 @@ package atlasmap
 
 import (
 	"context"
-	"github.com/Masterminds/semver"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"k8s.io/client-go/rest"
 
@@ -37,35 +36,25 @@ func newOperatorActions(log logr.Logger, mgr manager.Manager) []action {
 		log.Error(err, "Failed to determine cluster version. Defaulting to Kubernetes mode.")
 	}
 
-	var consoleLink action
-	if isOpenShift {
-		openShiftSemVer := util.GetClusterVersionSemVer(mgr.GetConfig())
-		if openShiftSemVer != nil {
-			constraint43, _ := semver.NewConstraint(">= 4.3")
-			isOpenShift43Plus := constraint43.Check(openShiftSemVer)
-
-			if isOpenShift43Plus {
-				consoleLink = newConsoleLinkAction(log.WithValues("type", "create-consolelink"), mgr)
-			}
-		}
-
-	}
-
-	var routeAction action
+	var consoleLinkAction, routeAction action
 	if isOpenShift {
 		routeAction = newRouteAction(log.WithValues("type", "create-route"), mgr)
+
+		if util.IsOpenShift43Plus(mgr.GetConfig()) {
+			consoleLinkAction = newConsoleLinkAction(log.WithValues("type", "create-consolelink"), mgr)
+		}
 	} else {
 		routeAction = newIngressAction(log.WithValues("type", "create-ingress"), mgr)
 	}
 
-	 actions := []action{
+	actions := []action{
 		newServiceAction(log.WithValues("type", "service"), mgr),
 		routeAction,
 		newDeploymentAction(log.WithValues("type", "create-deployment"), mgr),
-	 }
+	}
 
-	if consoleLink != nil {
-		actions = append(actions, consoleLink)
+	if consoleLinkAction != nil {
+		actions = append(actions, consoleLinkAction)
 	}
 
 	return actions
