@@ -216,6 +216,12 @@ spec:
     clusterPermissions:
       - rules:
         - apiGroups:
+          - config.openshift.io
+          resources:
+          - clusterversions
+          verbs:
+          - get
+        - apiGroups:
           - console.openshift.io
           resources:
           - consolelinks
