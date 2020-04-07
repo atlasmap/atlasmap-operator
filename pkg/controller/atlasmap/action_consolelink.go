@@ -2,6 +2,7 @@ package atlasmap
 
 import (
 	"context"
+
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"github.com/go-logr/logr"
@@ -51,7 +52,7 @@ func (action *consoleLinkAction) handle(ctx context.Context, atlasMap *v1alpha1.
 				}
 			}
 
-			if err := reconcileConsoleLink(atlasMap, route, consoleLink, action.client, ctx); err != nil {
+			if err := reconcileConsoleLink(ctx, atlasMap, route, consoleLink, action.client); err != nil {
 				return err
 			}
 		}
@@ -60,7 +61,7 @@ func (action *consoleLinkAction) handle(ctx context.Context, atlasMap *v1alpha1.
 	return nil
 }
 
-func reconcileConsoleLink(atlasMap *v1alpha1.AtlasMap, route *routev1.Route, link *consolev1.ConsoleLink, client client.Client, ctx context.Context) error {
+func reconcileConsoleLink(ctx context.Context, atlasMap *v1alpha1.AtlasMap, route *routev1.Route, link *consolev1.ConsoleLink, client client.Client) error {
 	updateConsoleLink := false
 	url := "https://" + route.Spec.Host
 	if link.Spec.Href != url {

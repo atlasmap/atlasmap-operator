@@ -1,0 +1,16 @@
+linters-settings:
+  gocritic:
+    disabled-checks:
+      - ifElseChain
+linters:
+  enable-all: true
+  disable:
+    - dupl
+    - lll
+    - gochecknoinits
+    - gochecknoglobals
+    - gocognit
+    - godox
+    - funlen
+    - whitespace
+    - wsl

@@ -2,6 +2,7 @@ package atlasmap
 
 import (
 	"context"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
@@ -16,10 +17,13 @@ import (
 )
 
 const (
-	atlasMapVersionAnnotation = "atlasmap.io/atlasmap.resource.version"
-	portAtlasMap              = 8585
-	portJolokia               = 8778
-	portPrometheus            = 9779
+	atlasMapVersionAnnotation    = "atlasmap.io/atlasmap.resource.version"
+	livenessInitialDelaySeconds  = 60
+	portAtlasMap                 = 8585
+	portJolokia                  = 8778
+	portPrometheus               = 9779
+	readinessInitialDelaySeconds = 15
+	readinessFailureThreshold    = 5
 )
 
 type deploymentAction struct {
@@ -33,7 +37,7 @@ func newDeploymentAction(log logr.Logger, mgr manager.Manager) action {
 }
 
 func (action *deploymentAction) handle(ctx context.Context, atlasMap *v1alpha1.AtlasMap) error {
-	deployment, err := getAtlasMapDeployment(action, ctx, atlasMap)
+	deployment, err := getAtlasMapDeployment(ctx, action, atlasMap)
 
 	if err != nil && errors.IsNotFound(err) {
 		probePath, err := atlasMapProbePath(atlasMap)
@@ -54,25 +58,25 @@ func (action *deploymentAction) handle(ctx context.Context, atlasMap *v1alpha1.A
 		deployment = deployment.DeepCopy()
 
 		// Reconcile replicas
-		if err := reconcileReplicas(deployment, atlasMap, ctx, action); err != nil {
+		if err := reconcileReplicas(ctx, deployment, atlasMap, action); err != nil {
 			return err
 		}
 
 		containers := deployment.Spec.Template.Spec.Containers
 		if len(containers) > 0 {
 			// Reconcile AtlasMap image
-			if err := reconcileImage(deployment, atlasMap, ctx, action.client); err != nil {
+			if err := reconcileImage(ctx, deployment, atlasMap, action.client); err != nil {
 				return err
 			}
 
 			// Reconcile resources
-			if err := reconcileResources(deployment, atlasMap, ctx, action.client); err != nil {
+			if err := reconcileResources(ctx, deployment, atlasMap, action.client); err != nil {
 				return err
 			}
 		}
 
 		// Update resource version
-		if err := updateResourceVersion(deployment, atlasMap, action.client, ctx); err != nil {
+		if err := updateResourceVersion(ctx, deployment, atlasMap, action.client); err != nil {
 			return err
 		}
 	} else {
@@ -83,7 +87,7 @@ func (action *deploymentAction) handle(ctx context.Context, atlasMap *v1alpha1.A
 	return nil
 }
 
-func getAtlasMapDeployment(action *deploymentAction, ctx context.Context, atlasMap *v1alpha1.AtlasMap) (*appsv1.Deployment, error) {
+func getAtlasMapDeployment(ctx context.Context, action *deploymentAction, atlasMap *v1alpha1.AtlasMap) (*appsv1.Deployment, error) {
 	deployment := &appsv1.Deployment{}
 	err := action.client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, deployment)
 	return deployment, err
@@ -136,7 +140,7 @@ func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap, probePath string) *ap
 									Port:   intstr.FromString("http"),
 									Path:   probePath,
 								}},
-							InitialDelaySeconds: 60,
+							InitialDelaySeconds: livenessInitialDelaySeconds,
 						},
 						ReadinessProbe: &corev1.Probe{
 							Handler: corev1.Handler{
@@ -145,8 +149,8 @@ func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap, probePath string) *ap
 									Port:   intstr.FromString("http"),
 									Path:   probePath,
 								}},
-							InitialDelaySeconds: 15,
-							FailureThreshold:    5,
+							InitialDelaySeconds: readinessInitialDelaySeconds,
+							FailureThreshold:    readinessFailureThreshold,
 						},
 					}},
 				},
@@ -155,7 +159,7 @@ func createAtlasMapDeployment(atlasMap *v1alpha1.AtlasMap, probePath string) *ap
 	}
 }
 
-func reconcileReplicas(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, ctx context.Context, action *deploymentAction) error {
+func reconcileReplicas(ctx context.Context, deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, action *deploymentAction) error {
 	if annotations := deployment.GetAnnotations(); annotations != nil && annotations[atlasMapVersionAnnotation] == atlasMap.GetResourceVersion() {
 		// Reconcile Deployment.Spec.Replicas replicas to AtlasMap.Spec.Replicas
 		if replicas := deployment.Spec.Replicas; atlasMap.Spec.Replicas != *replicas {
@@ -176,7 +180,7 @@ func reconcileReplicas(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMa
 	}
 
 	// Update AtlasMap status phase
-	updatedDeployment, err := getAtlasMapDeployment(action, ctx, atlasMap)
+	updatedDeployment, err := getAtlasMapDeployment(ctx, action, atlasMap)
 	if err != nil {
 		return err
 	}
@@ -192,7 +196,7 @@ func reconcileReplicas(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMa
 	return nil
 }
 
-func reconcileImage(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, ctx context.Context, client client.Client) error {
+func reconcileImage(ctx context.Context, deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, client client.Client) error {
 	container := &deployment.Spec.Template.Spec.Containers[0]
 	image := atlasMapImage(atlasMap)
 
@@ -227,7 +231,7 @@ func reconcileImage(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, 
 	return nil
 }
 
-func reconcileResources(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, ctx context.Context, client client.Client) error {
+func reconcileResources(ctx context.Context, deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, client client.Client) error {
 	container := &deployment.Spec.Template.Spec.Containers[0]
 	updateResources, err := resourceListChanged(atlasMap, container.Resources)
 	if err != nil {
@@ -246,7 +250,7 @@ func reconcileResources(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasM
 	return nil
 }
 
-func updateResourceVersion(deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, client client.Client, ctx context.Context) error {
+func updateResourceVersion(ctx context.Context, deployment *appsv1.Deployment, atlasMap *v1alpha1.AtlasMap, client client.Client) error {
 	instance := &v1alpha1.AtlasMap{}
 
 	err := client.Get(ctx, types.NamespacedName{Name: atlasMap.Name, Namespace: atlasMap.Namespace}, instance)

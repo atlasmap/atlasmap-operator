@@ -2,6 +2,7 @@ package atlasmap
 
 import (
 	"context"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -36,7 +37,7 @@ func (action *ingressAction) handle(ctx context.Context, atlasMap *v1alpha1.Atla
 			return err
 		}
 	} else if err == nil && ingress != nil {
-		if err := reconcileIngress(ingress, atlasMap, action.client, ctx); err != nil {
+		if err := reconcileIngress(ctx, ingress, atlasMap, action.client); err != nil {
 			return err
 		}
 	} else {
@@ -71,7 +72,7 @@ func createIngress(atlasMap *v1alpha1.AtlasMap) *v1beta1.Ingress {
 	}
 }
 
-func reconcileIngress(ingress *v1beta1.Ingress, atlasMap *v1alpha1.AtlasMap, client client.Client, ctx context.Context) error {
+func reconcileIngress(ctx context.Context, ingress *v1beta1.Ingress, atlasMap *v1alpha1.AtlasMap, client client.Client) error {
 	if len(ingress.Spec.Rules) == 1 {
 		host := util.GetIngressHostNameFor(atlasMap)
 		if host != ingress.Spec.Rules[0].Host {

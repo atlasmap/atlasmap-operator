@@ -2,6 +2,7 @@ package atlasmap
 
 import (
 	"context"
+
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"

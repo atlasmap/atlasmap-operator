@@ -2,6 +2,7 @@ package atlasmap
 
 import (
 	"context"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
@@ -37,7 +38,7 @@ func (action *routeAction) handle(ctx context.Context, atlasMap *v1alpha1.AtlasM
 			return err
 		}
 	} else if err == nil && route != nil {
-		if err := reconcileRoute(atlasMap, route, action.client, ctx); err != nil {
+		if err := reconcileRoute(ctx, atlasMap, route, action.client); err != nil {
 			return err
 		}
 	} else {
@@ -47,7 +48,7 @@ func (action *routeAction) handle(ctx context.Context, atlasMap *v1alpha1.AtlasM
 	return nil
 }
 
-func reconcileRoute(atlasMap *v1alpha1.AtlasMap, route *routev1.Route, client client.Client, ctx context.Context) error {
+func reconcileRoute(ctx context.Context, atlasMap *v1alpha1.AtlasMap, route *routev1.Route, client client.Client) error {
 	if atlasMap.Spec.RouteHostName != route.Spec.Host {
 		route.Spec.Host = atlasMap.Spec.RouteHostName
 		if err := client.Update(ctx, route); err != nil {

@@ -77,6 +77,7 @@ func atlasMapDeploymentTest(t *testing.T, f *framework.Framework, ctx *framework
 		},
 	}
 
+	//nolint
 	defer f.Client.Delete(goctx.TODO(), exampleAtlasMap)
 
 	if err := f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
@@ -151,6 +152,7 @@ func atlasMapScaleTest(t *testing.T, f *framework.Framework, ctx *framework.Test
 		},
 	}
 
+	//nolint
 	defer f.Client.Delete(goctx.TODO(), exampleAtlasMap)
 
 	if err := f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
@@ -222,6 +224,7 @@ func atlasMapImageNameTest(t *testing.T, f *framework.Framework, ctx *framework.
 		},
 	}
 
+	//nolint
 	defer f.Client.Delete(goctx.TODO(), exampleAtlasMap)
 
 	if err := f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {
@@ -276,6 +279,7 @@ func atlasMapResourcesTest(t *testing.T, f *framework.Framework, ctx *framework.
 		},
 	}
 
+	//nolint
 	defer f.Client.Delete(goctx.TODO(), exampleAtlasMap)
 
 	if err := f.Client.Create(goctx.TODO(), exampleAtlasMap, &framework.CleanupOptions{TestContext: ctx, Timeout: cleanupTimeout, RetryInterval: cleanupRetryInterval}); err != nil {

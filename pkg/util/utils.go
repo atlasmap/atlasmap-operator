@@ -2,6 +2,9 @@ package util
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/Masterminds/semver"
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	configv1client "github.com/openshift/client-go/config/clientset/versioned"
@@ -9,9 +12,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
-	"os"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
-	"strings"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 var log = logf.Log.WithName("util")
@@ -36,6 +37,10 @@ func IsOpenShift(config *rest.Config) (bool, error) {
 // GetClusterVersionSemVer gets the semantic version for the OpenShift cluster
 func GetClusterVersionSemVer(config *rest.Config) *semver.Version {
 	configClient, err := configv1client.NewForConfig(config)
+	if err != nil {
+		log.Error(err, "Failed to create config client")
+		return nil
+	}
 
 	var openShiftSemVer *semver.Version
 	clusterVersion, err := configClient.

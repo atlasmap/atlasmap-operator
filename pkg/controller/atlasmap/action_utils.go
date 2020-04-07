@@ -1,12 +1,13 @@
 package atlasmap
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/config"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"github.com/atlasmap/atlasmap-operator/version"
-	"strconv"
-	"strings"
 )
 
 const (
@@ -16,8 +17,8 @@ const (
 
 func atlasMapLabels(atlasMap *v1alpha1.AtlasMap) map[string]string {
 	return map[string]string{
-		"atlasmap.io/name": atlasMap.ObjectMeta.Name,
-		"atlasmap.io/version": atlasMapVersion(atlasMap),
+		"atlasmap.io/name":             atlasMap.ObjectMeta.Name,
+		"atlasmap.io/version":          atlasMapVersion(atlasMap),
 		"atlasmap.io/operator.version": version.Version,
 	}
 }

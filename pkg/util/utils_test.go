@@ -1,11 +1,12 @@
 package util
 
 import (
+	"os"
+	"testing"
+
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/stretchr/testify/assert"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"os"
-	"testing"
 )
 
 func TestGetIngressHostNameFor(t *testing.T) {
@@ -38,7 +39,7 @@ func TestConsoleLinkName(t *testing.T) {
 func TestConsoleLinkText(t *testing.T) {
 	atlasMap := &v1alpha1.AtlasMap{
 		ObjectMeta: v1.ObjectMeta{
-			Name:      "test-name",
+			Name: "test-name",
 		},
 	}
 	assert.Equal(t, "AtlasMap - Test Name", ConsoleLinkText(atlasMap))

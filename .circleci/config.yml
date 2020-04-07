@@ -25,6 +25,12 @@ jobs:
             mkdir -p ${GOPATH}/bin
 
       - run:
+          name: Lint Code
+          command: |
+            make install-golangci-lint
+            LINT_OPTIONS="--disable unused" make lint
+
+      - run:
           name: Install OpenShift
           command: |
             echo "Downloading OpenShift client tools..."

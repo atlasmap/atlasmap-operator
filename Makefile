@@ -88,3 +88,11 @@ olm-bundle-push:
 .PHONY: olm-operator-source
 olm-operator-source:
 	build/scripts/create-operator-source.sh $(QUAY_NAMESPACE)
+
+.PHONY: install-golangci-lint
+install-golangci-lint:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sudo sh -s -- -b /usr/local/bin v1.24.0
+
+.PHONY: lint
+lint:
+	golangci-lint run $(LINT_OPTIONS) --verbose --deadline 10m ./...

@@ -2,11 +2,12 @@ package atlasmap
 
 import (
 	"context"
+	"reflect"
+
 	consolev1 "github.com/openshift/api/console/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
-	"reflect"
 
 	"github.com/atlasmap/atlasmap-operator/pkg/apis/atlasmap/v1alpha1"
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
@@ -81,7 +82,7 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 				oldDeployment := e.ObjectOld.(*appsv1.Deployment)
 				newDeployment := e.ObjectNew.(*appsv1.Deployment)
 				return !reflect.DeepEqual(oldDeployment.Spec, newDeployment.Spec) ||
-					   oldDeployment.Status.ReadyReplicas != newDeployment.Status.ReadyReplicas
+					oldDeployment.Status.ReadyReplicas != newDeployment.Status.ReadyReplicas
 			},
 		})
 	if err != nil {
@@ -124,9 +125,9 @@ var _ reconcile.Reconciler = &ReconcileAtlasMap{}
 type ReconcileAtlasMap struct {
 	// This client, initialized using mgr.Client() above, is a split client
 	// that reads objects from the cache and writes to the apiserver
-	client client.Client
-	scheme *runtime.Scheme
-	config *rest.Config
+	client       client.Client
+	scheme       *runtime.Scheme
+	config       *rest.Config
 	configClient *configv1client.Clientset
 }
 
@@ -154,9 +155,9 @@ func (r *ReconcileAtlasMap) Reconcile(request reconcile.Request) (reconcile.Resu
 			}
 
 			isOpenShift, _ := util.IsOpenShift(r.config)
-			if isOpenShift && util.IsOpenShift43Plus(r.config){
+			if isOpenShift && util.IsOpenShift43Plus(r.config) {
 				//Handle removal of cluster-scope object.
-				r.removeConsoleLink(instance)
+				return r.removeConsoleLink(instance)
 			}
 
 			return reconcile.Result{}, nil

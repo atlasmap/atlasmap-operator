@@ -2,6 +2,7 @@ package atlasmap
 
 import (
 	"context"
+
 	"github.com/atlasmap/atlasmap-operator/pkg/util"
 	"k8s.io/client-go/rest"
 
@@ -11,8 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 )
 
 var log = logf.Log.WithName("action")

@@ -134,3 +134,9 @@ Or to test a local operator build:
 ```console
 $ make test-local
 ```
+
+To run lint checks. Install [golangci-lint](https://github.com/golangci/golangci-lint#install) and run:
+
+```console
+$ make lint
+```

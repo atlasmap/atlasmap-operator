@@ -5,10 +5,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/atlasmap/atlasmap-operator/pkg/util"
-	"github.com/atlasmap/atlasmap-operator/version"
 	"os"
 	"runtime"
+
+	"github.com/atlasmap/atlasmap-operator/pkg/util"
+	"github.com/atlasmap/atlasmap-operator/version"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	v1 "k8s.io/api/core/v1"
@@ -28,9 +29,9 @@ import (
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	"github.com/spf13/pflag"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
-	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
+	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
 )
 
 // Change below variables to serve metrics on different host or port.
@@ -51,6 +52,7 @@ func printVersion() {
 	log.Info(fmt.Sprintf("AtlasMap Default Image: %s", atlasmapconfig.DefaultConfiguration.GetAtlasMapImage()))
 }
 
+//nolint
 func init() {
 	imageName := util.GetEnvVar("ATLASMAP_IMAGE_NAME", atlasmapconfig.DefaultConfiguration.AtlasMapImage)
 	imageVersion := util.GetEnvVar("ATLASMAP_IMAGE_VERSION", atlasmapconfig.DefaultConfiguration.Version)
