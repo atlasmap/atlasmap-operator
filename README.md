@@ -46,13 +46,17 @@ The AtlasMap operator can:
 
 ## Install
 
-To install the required CRDs, roles, role binding & service account run the following commands as a privileged user.
+On OpenShift the AtlasMap operator can be installed via [OperatorHub](https://operatorhub.io/operator/atlasmap-operator).
+
+To manually install the required CRDs, roles, role binding & service account run the following commands as a privileged user.
 
 ```console
-$ kubectl apply -f deploy/crds/atlasmap.io_atlasmaps_crd.yaml
+$ kubectl apply -f deploy/crds/atlasmaps.atlasmap.io.crd.yaml
 $ kubectl apply -f deploy/service_account.yaml
 $ kubectl apply -f deploy/role.yaml
 $ kubectl apply -f deploy/role_binding.yaml
+$ kubectl apply -f deploy/cluster_role.yaml
+$ cat deploy/cluster_role_binding.yaml | sed "s/{{NAMESPACE}}/your-namespace/g" | kubectl apply -f -
 ```
 
 To deploy the AtlasMap operator run:
