@@ -194,5 +194,5 @@ func (r *ReconcileAtlasMap) removeConsoleLink(atlasMap *v1alpha1.AtlasMap) (requ
 			return reconcile.Result{}, err
 		}
 	}
-	return reconcile.Result{}, err
+	return reconcile.Result{}, nil
 }
