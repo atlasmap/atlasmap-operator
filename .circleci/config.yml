@@ -4,7 +4,7 @@ jobs:
     machine: true
     working_directory: ~/go/src/github.com/atlasmap/atlasmap-operator
     environment:
-      GO_VERSION: 1.13.8
+      GO_VERSION: 1.13.12
       OPENSHIFT_CLIENT_TOOLS: openshift-origin-client-tools-v3.11.0-0cbc58b-linux-64bit
 
     steps:
