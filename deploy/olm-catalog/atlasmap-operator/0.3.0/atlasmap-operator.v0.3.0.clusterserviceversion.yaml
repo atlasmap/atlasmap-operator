@@ -213,7 +213,7 @@ spec:
           - update
           - watch
         serviceAccountName: atlasmap-operator
-    clusterPermissions:
+      clusterPermissions:
       - rules:
         - apiGroups:
           - config.openshift.io
