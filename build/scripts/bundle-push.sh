@@ -42,6 +42,11 @@ if which operator-courier > /dev/null; then
   operator-courier --verbose verify --ui_validate_io ${BUNDLE_DIR}
   operator-courier --verbose push ${BUNDLE_DIR} ${NAMESPACE} ${REPOSITORY} ${BUNDLE_VERSION} "${QUAY_API_TOKEN}"
 else
+  if ! which docker > /dev/null; then
+    echo "operator-courier is not installed. Download a release from: https://github.com/operator-framework/operator-courier/releases"
+    exit 1
+  fi
+
   docker run -ti --rm -v ${BUNDLE_DIR}:${BUNDLE_DIR} jamesnetherton/operator-courier:latest \
     operator-courier --verbose verify --ui_validate_io ${BUNDLE_DIR}
 
