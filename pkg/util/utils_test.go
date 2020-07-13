@@ -43,6 +43,15 @@ func TestConsoleLinkText(t *testing.T) {
 		},
 	}
 	assert.Equal(t, "AtlasMap - Test Name", ConsoleLinkText(atlasMap))
+
+	atlasMap.ObjectMeta.Name = "example-atlasmap"
+	assert.Equal(t, "AtlasMap - Example", ConsoleLinkText(atlasMap))
+
+	atlasMap.ObjectMeta.Name = "atlasmap-example"
+	assert.Equal(t, "AtlasMap - Example", ConsoleLinkText(atlasMap))
+
+	atlasMap.ObjectMeta.Name = "atlasmap-example-atlasmap"
+	assert.Equal(t, "AtlasMap - Example", ConsoleLinkText(atlasMap))
 }
 
 func TestGetEnvVar(t *testing.T) {

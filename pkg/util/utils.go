@@ -105,7 +105,7 @@ func ConsoleLinkText(atlasMap *v1alpha1.AtlasMap) string {
 	name = strings.TrimPrefix(name, "atlasmap")
 	name = strings.TrimSuffix(name, "atlasmap")
 	name = strings.Title(name)
-	return "AtlasMap - " + name
+	return "AtlasMap - " + strings.TrimSpace(name)
 }
 
 // GetEnvVar gets the value of the given environment variable or returns a default value if it does not exist
