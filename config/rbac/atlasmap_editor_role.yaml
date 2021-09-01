@@ -1,0 +1,24 @@
+# permissions for end users to edit atlasmaps.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: atlasmap-editor-role
+rules:
+- apiGroups:
+  - atlasmap.io
+  resources:
+  - atlasmaps
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - atlasmap.io
+  resources:
+  - atlasmaps/status
+  verbs:
+  - get

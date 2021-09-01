@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: atlasmap-operator-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: atlasmap-operator-role
+subjects:
+- kind: ServiceAccount
+  name: atlasmap-operator
+  namespace: atlasmap
+- kind: ServiceAccount
+  name: default
+  namespace: atlasmap
