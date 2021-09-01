@@ -1,0 +1,6 @@
+resources:
+- service_account.yaml
+- role.yaml
+- role_binding.yaml
+- atlasmap_editor_role.yaml
+- atlasmap_viewer_role.yaml
