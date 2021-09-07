@@ -12,11 +12,8 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
-	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 )
-
-var log = logf.Log.WithName("action")
 
 type Action interface {
 	Handle(ctx context.Context, atlasMap *v1alpha1.AtlasMap) error

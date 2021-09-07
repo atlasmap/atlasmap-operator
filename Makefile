@@ -81,6 +81,9 @@ endif
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
+LINT_GOGC := 10
+LINT_DEADLINE := 10m
+
 all: build
 
 ##@ General
@@ -278,3 +281,15 @@ catalog-build: opm ## Build a catalog image.
 .PHONY: catalog-push
 catalog-push: ## Push a catalog image.
 	$(MAKE) docker-push IMG=$(CATALOG_IMG)
+
+.PHONY: install-golangci-lint
+install-golangci-lint:
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sudo sh -s -- -b /usr/local/bin
+
+.PHONY: lint
+lint:
+	GOGC=$(LINT_GOGC) golangci-lint run --verbose --deadline $(LINT_DEADLINE)
+
+.PHONY: lint-fix
+lint-fix:
+	GOGC=$(LINT_GOGC) golangci-lint run --verbose --deadline $(LINT_DEADLINE) --fix
