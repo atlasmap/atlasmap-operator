@@ -23,7 +23,6 @@ import (
 
 	consolev1 "github.com/openshift/api/console/v1"
 	routev1 "github.com/openshift/api/route/v1"
-	configv1client "github.com/openshift/client-go/config/clientset/versioned"
 	appsv1 "k8s.io/api/apps/v1"
 	netv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -44,10 +43,9 @@ import (
 
 // AtlasMapReconciler reconciles a AtlasMap object
 type AtlasMapReconciler struct {
-	Client       client.Client
-	Scheme       *runtime.Scheme
-	config       *rest.Config
-	configClient *configv1client.Clientset
+	Client client.Client
+	Scheme *runtime.Scheme
+	config *rest.Config
 }
 
 var actions []action.Action
