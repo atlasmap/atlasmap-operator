@@ -112,8 +112,8 @@ func (r *AtlasMapReconciler) Reconcile(ctx context.Context, request ctrl.Request
 func printVersion() {
 	log.Info(fmt.Sprintf("Go Version: %s", gort.Version()))
 	log.Info(fmt.Sprintf("Go OS/Arch: %s/%s", gort.GOOS, gort.GOARCH))
-	log.Info(fmt.Sprintf("Syndesis Operator Version: %s", config.DefaultOperatorVersion))
-	log.Info(fmt.Sprintf("Syndesis Operator Image: %s", config.DefaultOperatorImage))
+	log.Info(fmt.Sprintf("AtlasMap Operator Version: %s", config.DefaultOperatorVersion))
+	log.Info(fmt.Sprintf("AtlasMap Operator Image: %s", config.DefaultOperatorImage))
 }
 
 // SetupWithManager sets up the controller with the Manager.

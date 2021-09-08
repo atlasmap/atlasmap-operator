@@ -3,6 +3,8 @@ build/_output
 build/_test
 /atlasmap-operator
 bin
+bundle
+bundle.Dockerfile
 
 # Created by https://www.gitignore.io/api/go,vim,emacs,visualstudiocode
 ### Emacs ###
