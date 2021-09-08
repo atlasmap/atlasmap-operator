@@ -10,3 +10,7 @@ configMapGenerator:
 - files:
   - controller_manager_config.yaml
   name: manager-config
+images:
+- name: controller
+  newName: docker.io/atlasmap/atlasmap-operator
+  newTag: latest
