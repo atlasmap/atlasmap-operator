@@ -78,7 +78,7 @@ When the operator is running you can deploy an example AtlasMap custom resource:
 
 ```console
 # Create example-atlasmap
-$ kubectl create -f config/samples/tlasmap.io_v1alpha1_atlasmap.yaml
+$ kubectl create -f config/samples/atlasmap.io_v1alpha1_atlasmap.yaml
 atlasmap.atlasmap.io/example-atlasmap created
 
 # Verify example-atlasmap
