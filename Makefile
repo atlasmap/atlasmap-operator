@@ -55,7 +55,8 @@ IMAGE_TAG_BASE ?= atlasmap.io/atlasmap-operator
 
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
-BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
+BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle
+BUNDLE_TAG ?= :v$(VERSION)
 
 # The namespace to instal everything. Derived from currently set namespace
 NAMESPACE := $(shell ./script/namespace.sh)
@@ -236,11 +237,11 @@ bundle: pre-bundle manifests kustomize  operator-sdk ## Generate bundle manifest
 
 .PHONY: bundle-build
 bundle-build: ## Build the bundle image.
-	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG) .
+	docker build -f bundle.Dockerfile -t $(BUNDLE_IMG):$(BUNDLE_TAG) .
 
 .PHONY: bundle-push
 bundle-push: ## Push the bundle image.
-	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
+	$(MAKE) docker-push IMG=$(BUNDLE_IMG) TAG=$(BUNDLE_TAG)
 
 .PHONY: opm
 OPM = ./bin/opm
