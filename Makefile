@@ -61,7 +61,8 @@ BUNDLE_IMG ?= $(IMAGE_TAG_BASE)-bundle:v$(VERSION)
 NAMESPACE := $(shell ./script/namespace.sh)
 
 # Image URL to use all building/pushing image targets
-IMG ?= docker.io/atlasmap/atlasmap-operator
+REGISTRY ?= docker.io
+IMG ?= $(REGISTRY)/atlasmap/atlasmap-operator
 TAG ?= $(VERSION)
 # Produce CRDs that work back to Kubernetes 1.11 (no version conversion)
 CRD_OPTIONS ?= "crd:trivialVersions=true,preserveUnknownFields=false"
