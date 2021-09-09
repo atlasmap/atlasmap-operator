@@ -58,8 +58,8 @@ spec:
   - name: AtlasMap website
     url: https://www.atlasmap.io/
   maintainers:
-  - email: toigaras@redhat.com
-    name: Tomohisa Igarashi
+  - email: fuse-online@redhat.com
+    name: Red Hat Fuse Online
   maturity: alpha
   provider:
     name: AtlasMap
