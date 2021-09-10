@@ -63,7 +63,7 @@ spec:
   maturity: alpha
   provider:
     name: AtlasMap
-  replaces: atlasmap-operator.v0.4.0
+  replaces: atlasmap-operator.v0.4.1
   selector:
     matchLabels:
       name: atlasmap-operator
