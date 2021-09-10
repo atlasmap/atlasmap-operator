@@ -4,7 +4,7 @@
 # - use the VERSION as arg of the bundle target (e.g make bundle VERSION=0.0.2)
 # - use environment variables to overwrite this value (e.g export VERSION=0.0.2)
 VERSION ?= 0.4.1
-PREVIOUS_VERSION ?= 0.3.0
+PREVIOUS_VERSION ?= 0.4.0
 
 #
 # Versions of development and generation binaries
