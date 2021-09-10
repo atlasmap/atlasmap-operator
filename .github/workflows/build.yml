@@ -29,6 +29,8 @@ jobs:
 
     - run: make build
 
+    - run: make bundle
+
     - run: make test
 
     - run: echo "VERSION=latest" >> $GITHUB_ENV
