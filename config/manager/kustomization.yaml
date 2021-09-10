@@ -13,7 +13,4 @@ configMapGenerator:
 images:
 - name: atlasmap-operator
   newName: docker.io/atlasmap/atlasmap-operator
-  newTag: 0.4.0
-- name: controller
-  newName: docker.io/atlasmap/atlasmap-operator
-  newTag: latest
+  newTag: 0.4.1

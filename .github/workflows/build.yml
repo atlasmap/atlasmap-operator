@@ -33,18 +33,18 @@ jobs:
 
     - run: make test
 
-    - run: echo "VERSION=latest" >> $GITHUB_ENV
+    - run: echo "TAG=latest" >> $GITHUB_ENV
       if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
 
-    - run: echo "VERSION=${GITHUB_REF#refs\/tags\/}" >> $GITHUB_ENV
+    - run: echo "TAG=${GITHUB_REF#refs\/tags\/}" >> $GITHUB_ENV
       if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') }}
 
     - name: Publish Docker Image
-      if: ${{ github.event_name == 'push' && env.VERSION}}
+      if: ${{ github.event_name == 'push' && env.TAG}}
       run: |
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-        make docker-build docker-push VERSION=${{ env.VERSION }}
-        make bundle bundle-build bundle-push VERSION=${{ env.VERSION }}
+        make docker-build docker-push TAG=${{ env.TAG }}
+        make bundle bundle-build bundle-push VERSION=${{ env.TAG }}
         docker login -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_PASSWORD }} quay.io
-        make build docker-build docker-push REGISTRY="quay.io" VERSION=${{ env.VERSION }}
-        make bundle bundle-build bundle-push REGISTRY="quay.io" VERSION=${{ env.VERSION }}
+        make build docker-build docker-push REGISTRY="quay.io" TAG=${{ env.TAG }}
+        make bundle bundle-build bundle-push REGISTRY="quay.io" TAG=${{ env.TAG }}

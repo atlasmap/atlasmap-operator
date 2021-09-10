@@ -5,13 +5,13 @@ metadata:
     capabilities: Seamless Upgrades
     categories: Integration & Delivery
     certified: "false"
-    containerImage: docker.io/atlasmap/atlasmap-operator:0.4.0
+    containerImage: docker.io/atlasmap/atlasmap-operator:0.4.1
     description: AtlasMap is a data mapping solution with an interactive web based
       user interface, that simplifies configuring integrations between Java, XML,
       and JSON data sources
     repository: https://github.com/atlasmap/atlasmap-operator
     support: AtlasMap
-  name: atlasmap-operator.v0.4.0
+  name: atlasmap-operator.v0.4.1
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -67,4 +67,4 @@ spec:
   selector:
     matchLabels:
       name: atlasmap-operator
-  version: 0.4.0
+  version: 0.4.1
