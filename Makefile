@@ -56,7 +56,7 @@ IMAGE_TAG_BASE ?= atlasmap/atlasmap-operator
 # BUNDLE_IMG defines the image:tag used for the bundle.
 # You can use it as an arg. (E.g make bundle-build BUNDLE_IMG=<some-registry>/<project-name-bundle>:<tag>)
 BUNDLE_IMG ?= $(REGISTRY)/$(IMAGE_TAG_BASE)-bundle
-BUNDLE_TAG ?= v$(VERSION)
+BUNDLE_TAG ?= v$(TAG)
 
 # The namespace to instal everything. Derived from currently set namespace
 NAMESPACE := $(shell ./script/namespace.sh)
